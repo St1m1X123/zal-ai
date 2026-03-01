@@ -1,0 +1,24 @@
+{
+    "name": "ZalAI: Smart Trainer",
+    "short_name": "ZalAI",
+    "description": "Smart Logging Workout Tracker with AI concepts",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0a0c10",
+    "theme_color": "#0a0c10",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/window.svg",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/window.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}
