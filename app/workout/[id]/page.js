@@ -3,11 +3,24 @@
 import { supabase } from '../../../lib/supabase'
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import ExerciseSelector from '../../../components/ExerciseSelector'
 
 const IconCheck = ({ className }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+  </svg>
+)
+
+const IconTimer = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+)
+
+const IconTimerOff = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18M12 8v4l1.5 1.5M21 12a9 9 0 01-1.378 4.777M19.07 4.93A9 9 0 0012 3a9.003 9.003 0 00-7.391 3.868M5.106 18.894A9 9 0 0012 21a8.996 8.996 0 005.894-2.106" />
   </svg>
 )
 
@@ -24,10 +37,16 @@ export default function WorkoutPage() {
   const router = useRouter()
   const workoutId = params?.id
 
+  const [user, setUser] = useState(null)
   const [workout, setWorkout] = useState(null)
   const [exercises, setExercises] = useState([])
   const [sets, setSets] = useState({})
+  const [prevStats, setPrevStats] = useState({}) // { exercise_id: { weight, reps, time, date } }
   const [loading, setLoading] = useState(true)
+
+  // Auto-timer State
+  const [autoRestEnabled, setAutoRestEnabled] = useState(true)
+  const [showAutoRestToast, setShowAutoRestToast] = useState(false)
 
   const [restTimer, setRestTimer] = useState(0)
   const [isResting, setIsResting] = useState(false)
@@ -35,9 +54,9 @@ export default function WorkoutPage() {
   const [showRestPicker, setShowRestPicker] = useState(false)
   const [sessionTime, setSessionTime] = useState(0)
 
-  // Екран завершення
   const [showFinishScreen, setShowFinishScreen] = useState(false)
   const [finishStats, setFinishStats] = useState(null)
+  const [newPRs, setNewPRs] = useState([])
 
   const timerInterval = useRef(null)
   const sessionInterval = useRef(null)
@@ -45,15 +64,30 @@ export default function WorkoutPage() {
 
   const [isAddingExercise, setIsAddingExercise] = useState(false)
   const [isSavingNewExercise, setIsSavingNewExercise] = useState(false)
-  // ExerciseSelector внутрішній стан для workout
+  // ExerciseSelector внутрішній стан
   const [selectorSearch, setSelectorSearch] = useState('')
   const [selectorCategory, setSelectorCategory] = useState('Усі')
   const [dbExercises, setDbExercises] = useState([])
   const [isLoadingDb, setIsLoadingDb] = useState(false)
 
-  const CATEGORIES = ['Усі', 'Груди', 'Спина', 'Ноги', 'Плечі', 'Руки', 'Прес', 'Кардіо', 'Інше']
+  const CATEGORIES = ['Усі', 'Груди', 'Спина', 'Ноги', 'Плечі', 'Руки', 'Прес', 'Кардіо', 'Розтяжка', 'Інше']
 
-  // Завантаження вправ для селектора
+  // Відновлюємо налаштування таймера з localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('zalai_auto_rest')
+    if (saved !== null) {
+      setAutoRestEnabled(saved === 'true')
+    }
+  }, [])
+
+  const toggleAutoRest = () => {
+    const nextVal = !autoRestEnabled
+    setAutoRestEnabled(nextVal)
+    localStorage.setItem('zalai_auto_rest', String(nextVal))
+    setShowAutoRestToast(true)
+    setTimeout(() => setShowAutoRestToast(false), 2000)
+  }
+
   const loadDbExercises = async () => {
     if (dbExercises.length > 0) return
     setIsLoadingDb(true)
@@ -85,23 +119,122 @@ export default function WorkoutPage() {
     return () => clearInterval(timerInterval.current)
   }, [restTimer])
 
-  const startRest = () => { setRestTimer(restDuration); setIsResting(true) }
+  const startRest = () => {
+    if (!autoRestEnabled) return
+    setRestTimer(restDuration)
+    setIsResting(true)
+  }
+
   const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
 
   // Завантаження даних
   useEffect(() => {
     if (!workoutId) return
+
     const fetchWorkoutData = async () => {
+      // 1. Get user session first
+      const { data: { session } } = await supabase.auth.getSession()
+      const currentUser = session?.user
+      setUser(currentUser)
+
+      // 2. Fetch workout
       const { data: wData } = await supabase.from('workouts').select('*').eq('id', workoutId).single()
       setWorkout(wData)
+
+      // 3. Fetch workout exercises
       const { data: weData } = await supabase.from('workout_exercises').select('*, exercises(name, type)').eq('workout_id', workoutId).order('order', { ascending: true })
       setExercises(weData || [])
+
+      const exerciseIds = weData?.map(e => e.exercise_id) || []
+
+      // 4. Fetch sets
       if (weData && weData.length > 0) {
         const { data: sData } = await supabase.from('sets').select('*').in('workout_exercise_id', weData.map(e => e.id)).order('order', { ascending: true })
         const setsObj = {}
         sData?.forEach(s => { setsObj[s.id] = s })
         setSets(setsObj)
       }
+
+      // 5. Fetch previous stats for these exercises
+      if (currentUser && exerciseIds.length > 0) {
+        try {
+          // Шукаємо всі попередні завершені тренування користувача
+          const { data: prevWorkouts } = await supabase
+            .from('workouts')
+            .select('id, date')
+            .eq('user_id', currentUser.id)
+            .eq('status', 'completed')
+            .eq('is_template', false)
+            .neq('id', workoutId)
+            .order('date', { ascending: false })
+            .limit(10) // Шукаємо тільки в останніх 10 тренуваннях для швидості
+
+          if (prevWorkouts?.length > 0) {
+            const prevWorkoutIds = prevWorkouts.map(w => w.id)
+
+            const { data: prevWEs } = await supabase
+              .from('workout_exercises')
+              .select('id, exercise_id, workout_id')
+              .in('workout_id', prevWorkoutIds)
+              .in('exercise_id', exerciseIds)
+
+            if (prevWEs?.length > 0) {
+              const prevWeIds = prevWEs.map(we => we.id)
+
+              const { data: prevSetData } = await supabase
+                .from('sets')
+                .select('weight, reps, time_seconds, workout_exercise_id')
+                .in('workout_exercise_id', prevWeIds)
+                .eq('is_completed', true)
+
+              // Групуємо статистику
+              // Знаходимо найкращий сет (макс вага/час) для кожної вправи в останньому тренуванні
+              const statsMap = {}
+
+              exerciseIds.forEach(exId => {
+                // Відсортувати workout_exercises для цієї вправи за датою (через workoutIds)
+                const wesForEx = prevWEs.filter(we => we.exercise_id === exId)
+                if (!wesForEx.length) return
+
+                // Знайти найновіший workout (спиремось на порядок prevWorkouts)
+                let latestWe = null
+                for (const pw of prevWorkouts) {
+                  const match = wesForEx.find(we => we.workout_id === pw.id)
+                  if (match) { latestWe = match; break }
+                }
+
+                if (latestWe) {
+                  // Знайти всі сети для цього workout_exercise
+                  const exSets = prevSetData?.filter(s => s.workout_exercise_id === latestWe.id) || []
+                  if (exSets.length > 0) {
+                    // Знайти "найкращий" сет
+                    // Для ваги - макс вага, потім макс повтори
+                    // Для часу - макс час
+                    const bestSet = exSets.reduce((best, cur) => {
+                      if (!best) return cur;
+                      if ((cur.weight || 0) > (best.weight || 0)) return cur;
+                      if ((cur.weight || 0) === (best.weight || 0) && (cur.reps || 0) > (best.reps || 0)) return cur;
+                      if ((cur.time_seconds || 0) > (best.time_seconds || 0)) return cur;
+                      return best;
+                    }, null)
+
+                    if (bestSet) {
+                      statsMap[exId] = {
+                        weight: bestSet.weight,
+                        reps: bestSet.reps,
+                        time: bestSet.time_seconds,
+                        date: prevWorkouts.find(w => w.id === latestWe.workout_id)?.date
+                      }
+                    }
+                  }
+                }
+              })
+              setPrevStats(statsMap)
+            }
+          }
+        } catch (e) { console.error('Error fetching prev stats:', e) }
+      }
+
       setLoading(false)
     }
     fetchWorkoutData()
@@ -162,6 +295,19 @@ export default function WorkoutPage() {
     if (newSet) setSets(prev => ({ ...prev, [newSet.id]: newSet }))
   }
 
+  // Видалити підхід
+  const handleDeleteSet = async (setId) => {
+    if (Object.values(sets).length <= 1) return // Не видаляємо останній підхід на всьому екрані
+    const { error } = await supabase.from('sets').delete().eq('id', setId)
+    if (!error) {
+      setSets(prev => {
+        const next = { ...prev }
+        delete next[setId]
+        return next
+      })
+    }
+  }
+
   const handleAddNewExercise = async (selectedEx) => {
     setIsSavingNewExercise(true)
     const currentOrder = exercises.length > 0 ? Math.max(...exercises.map(e => e.order)) + 1 : 0
@@ -185,6 +331,56 @@ export default function WorkoutPage() {
     clearInterval(sessionInterval.current)
     const allSets = Object.values(sets)
     const completed = allSets.filter(s => s.is_completed)
+
+    // ── Визначення нових рекордів ──
+    const prList = []
+    try {
+      const userId = user?.id
+      if (userId) {
+        const exerciseIds = [...new Set(exercises.map(ex => ex.exercise_id))]
+
+        const { data: prevWorkouts } = await supabase
+          .from('workouts').select('id')
+          .eq('user_id', userId).neq('id', workoutId)
+          .eq('is_template', false).eq('status', 'completed')
+
+        if (prevWorkouts?.length > 0) {
+          const { data: prevWEs } = await supabase
+            .from('workout_exercises').select('id, exercise_id')
+            .in('workout_id', prevWorkouts.map(w => w.id))
+            .in('exercise_id', exerciseIds)
+
+          if (prevWEs?.length > 0) {
+            const { data: prevSetData } = await supabase
+              .from('sets').select('weight, workout_exercise_id')
+              .in('workout_exercise_id', prevWEs.map(we => we.id))
+              .eq('is_completed', true).gt('weight', 0)
+
+            const prevMax = {}
+            prevSetData?.forEach(s => {
+              const we = prevWEs.find(w => w.id === s.workout_exercise_id)
+              if (we) prevMax[we.exercise_id] = Math.max(prevMax[we.exercise_id] || 0, s.weight || 0)
+            })
+
+            exercises.forEach(ex => {
+              const exSets = completed.filter(s => s.workout_exercise_id === ex.id && (s.weight || 0) > 0)
+              if (!exSets.length) return
+              const curMax = Math.max(...exSets.map(s => s.weight || 0))
+              const oldMax = prevMax[ex.exercise_id] || 0
+              if (curMax > oldMax) {
+                prList.push({
+                  name: ex.exercises.name,
+                  weight: curMax,
+                  prev: oldMax,
+                  isFirst: oldMax === 0,
+                })
+              }
+            })
+          }
+        }
+      }
+    } catch (e) { console.error('PR detection:', e) }
+
     setFinishStats({
       name: workout?.name || 'Тренування',
       time: sessionTime,
@@ -192,6 +388,7 @@ export default function WorkoutPage() {
       completedSets: completed.length,
       exercises: exercises.length,
     })
+    setNewPRs(prList)
     await supabase.from('workouts').update({ status: 'completed' }).eq('id', workoutId)
     setShowFinishScreen(true)
   }
@@ -199,11 +396,11 @@ export default function WorkoutPage() {
   // ============= ЕКРАН ЗАВЕРШЕННЯ =============
   if (showFinishScreen && finishStats) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <main className="min-h-screen flex flex-col items-center justify-start p-6 relative overflow-hidden pb-12">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full blur-[100px] bg-[#A3E635]/15 pointer-events-none" />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full blur-[60px] bg-[#22D3EE]/8 pointer-events-none" />
 
-        <div className="z-10 w-full max-w-sm flex flex-col items-center text-center gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="z-10 w-full max-w-sm flex flex-col items-center text-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pt-12">
           {/* Іконка успіху */}
           <div className="relative">
             <div className="w-24 h-24 rounded-3xl neural-card flex items-center justify-center shadow-[0_0_50px_rgba(163,230,53,0.2)]">
@@ -211,7 +408,7 @@ export default function WorkoutPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <div className="absolute -top-2 -right-2 ai-badge">✦ AI</div>
+            <div className="absolute -top-2 -right-2 ai-badge">❖ AI</div>
           </div>
 
           <div>
@@ -233,13 +430,47 @@ export default function WorkoutPage() {
             ))}
           </div>
 
-          {/* AI аналіз-заглушка */}
+          {/* Трофеї — нові рекорди */}
+          {newPRs.length > 0 && (
+            <div className="w-full text-left">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">🏆</span>
+                <div>
+                  <p className="text-white font-bold text-base">Нові рекорди!</p>
+                  <p className="text-white/30 text-xs">{newPRs.length === 1 ? 'Один новий' : `${newPRs.length} нових`} особистих рекорди</p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                {newPRs.map((pr, i) => (
+                  <div key={i} className="rounded-2xl px-4 py-3 flex items-center justify-between"
+                    style={{ background: 'rgba(163,230,53,0.07)', border: '1px solid rgba(163,230,53,0.2)' }}>
+                    <div>
+                      <p className="text-white text-sm font-bold">{pr.name}</p>
+                      <p className="text-white/30 text-xs mt-0.5">
+                        {pr.isFirst ? 'Уперше за цю вправу!' : `Було: ${pr.prev} кг`}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-mono font-bold text-xl" style={{ color: '#A3E635' }}>{pr.weight} кг</p>
+                      {!pr.isFirst && (
+                        <p className="text-xs font-bold" style={{ color: '#A3E635' }}>+{(pr.weight - pr.prev).toFixed(1)} кг ↗</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* AI аналіз */}
           <div className="neural-card rounded-2xl p-4 w-full text-left">
             <div className="flex items-center gap-2 mb-2">
-              <div className="ai-badge">✦ AI Аналіз</div>
+              <div className="ai-badge">❖ AI Аналіз</div>
             </div>
             <p className="text-white/40 text-xs leading-relaxed">
-              Відмінна сесія! ZalAI запам'ятав всі ваги та підходи. Наступного разу AI підкаже оптимальне навантаження.
+              {newPRs.length > 0
+                ? `Неймовірно! Ти побив ${newPRs.length > 1 ? `${newPRs.length} рекорди` : 'рекорд'} за цю сесію. ZalAI запамʼятає цей прогрес і піднятиме планку наступного разу.`
+                : 'Відмінна сесія! ZalAI запамʼятає всі ваги та підходи. Наступного разу AI підкаже оптимальне навантаження.'}
             </p>
           </div>
 
@@ -276,22 +507,46 @@ export default function WorkoutPage() {
   return (
     <main className="min-h-screen text-white relative pb-36">
 
+      {/* Auto timer toast indicator */}
+      {showAutoRestToast && (
+        <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-4 duration-300 pointer-events-none">
+          <div className="bg-[#080b10]/95 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 flex items-center gap-3 shadow-2xl">
+            {autoRestEnabled ? (
+              <IconTimer className="w-4 h-4 text-[#A3E635]" />
+            ) : (
+              <IconTimerOff className="w-4 h-4 text-red-400" />
+            )}
+            <span className="text-[11px] font-bold text-white uppercase tracking-widest">
+              {'Авто-таймер ' + (autoRestEnabled ? 'увімкнено' : 'вимкнено')}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* ХЕДЕР */}
       <header className="sticky top-0 z-20 px-4 pt-5 pb-3 bg-[#080b10]/80 backdrop-blur-xl border-b border-white/[0.05]">
         <div className="mx-auto w-full max-w-md">
           <div className="flex items-center justify-between mb-3">
-            <div>
+            <div className="flex-1">
               <p className="text-[9px] font-bold text-[#A3E635]/50 uppercase tracking-[0.3em] mb-1 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#A3E635] shadow-[0_0_6px_#A3E635] animate-pulse inline-block" />
                 Активна сесія
               </p>
-              <h1 className="text-base font-bold text-white tracking-tight truncate max-w-[200px]">
+              <h1 className="text-base font-bold text-white tracking-tight">
                 {workout?.name}
               </h1>
             </div>
-            <div className="neural-card rounded-xl px-3 py-2 text-right">
-              <p className="text-[8px] font-bold text-white/20 uppercase tracking-wider">Час</p>
-              <p className="text-sm font-mono font-bold text-white/70 tabular-nums">{formatTime(sessionTime)}</p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={toggleAutoRest}
+                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${autoRestEnabled ? 'bg-[#A3E635]/15 text-[#A3E635]' : 'bg-red-500/10 text-red-400'}`}
+              >
+                {autoRestEnabled ? <IconTimer className="w-4 h-4" /> : <IconTimerOff className="w-4 h-4" />}
+              </button>
+              <div className="neural-card rounded-xl px-3 py-2 text-right">
+                <p className="text-[8px] font-bold text-white/20 uppercase tracking-wider">Час</p>
+                <p className="text-sm font-mono font-bold text-white/70 tabular-nums">{formatTime(sessionTime)}</p>
+              </div>
             </div>
           </div>
 
@@ -325,15 +580,15 @@ export default function WorkoutPage() {
                 onClick={() => handleCompleteBlock(blockSets)}
                 className="neural-card rounded-2xl px-5 py-3.5 flex items-center justify-between active:scale-[0.98] transition-all border-[#A3E635]/10"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-full bg-[#A3E635]/15 flex items-center justify-center">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-7 h-7 rounded-full bg-[#A3E635]/15 flex items-center justify-center shrink-0">
                     <IconCheck className="w-3.5 h-3.5 text-[#A3E635]" />
                   </div>
-                  <span className="text-sm font-medium text-white/40 line-through decoration-white/20 truncate max-w-[200px]">
+                  <span className="text-sm font-medium text-white/40 line-through decoration-white/20">
                     {blockTitle}
                   </span>
                 </div>
-                <span className="text-[9px] font-bold text-[#A3E635]/60 uppercase tracking-wider shrink-0">Виконано</span>
+                <span className="text-[9px] font-bold text-[#A3E635]/60 uppercase tracking-wider shrink-0 ml-3">Виконано</span>
               </button>
             )
           }
@@ -350,27 +605,57 @@ export default function WorkoutPage() {
                 {block.map((ex, idx) => {
                   const exSets = blockSets.filter(s => s.workout_exercise_id === ex.id)
                   const isTimeType = ex.exercises.type === 'time'
+                  const exPrevStats = prevStats[ex.exercise_id]
 
                   return (
                     <div key={ex.id} className={idx > 0 ? 'pt-5 border-t border-white/[0.05]' : ''}>
                       {/* Назва + кнопка "все виконано" */}
-                      <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-sm font-bold text-white/80 uppercase tracking-wide">{ex.exercises.name}</h2>
+                      <div className="flex items-start justify-between mb-4 gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 group/title">
+                            <h2 className="text-sm font-bold text-white/80 uppercase tracking-wide leading-snug truncate">{ex.exercises.name}</h2>
+                            <Link
+                              href={`/exercises/${ex.exercise_id}`}
+                              className="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover/title:opacity-100 transition-opacity hover:bg-[#A3E635]/20 hover:text-[#A3E635]"
+                            >
+                              <span className="text-[10px] font-serif italic">i</span>
+                            </Link>
+                          </div>
+
+                          {/* Попередній рекорд для цієї вправи */}
+                          {exPrevStats && (
+                            <p className="text-[10px] font-medium text-white/30 mt-1 flex items-center gap-1.5">
+                              <svg className="w-3 h-3 text-[#A3E635]/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                              </svg>
+                              Минулого разу: {
+                                isTimeType
+                                  ? `${formatTime(exPrevStats.time || 0)}`
+                                  : `${exPrevStats.weight || 0}кг × ${exPrevStats.reps || 0}`
+                              }
+                              <span className="text-[8px] opacity-40 ml-1">
+                                ({new Date(exPrevStats.date).toLocaleDateString('uk-UA', { day: 'numeric', month: 'short' })})
+                              </span>
+                            </p>
+                          )}
+                        </div>
+
                         <button
                           onClick={() => handleCompleteBlock(blockSets)}
-                          className="text-[9px] font-bold text-white/20 hover:text-[#A3E635] uppercase tracking-wider transition-colors"
+                          className="text-[9px] font-bold text-white/20 hover:text-[#A3E635] uppercase tracking-wider transition-colors shrink-0 pt-0.5"
                         >
                           Все виконано
                         </button>
                       </div>
 
                       {/* Заголовки колонок */}
-                      <div className={`grid gap-2 px-1 mb-2 ${isTimeType ? 'grid-cols-[36px_1fr_40px]' : 'grid-cols-[36px_1fr_1fr_40px]'}`}>
+                      <div className={`grid gap-2 px-1 mb-2 ${isTimeType ? 'grid-cols-[36px_1fr_40px_32px]' : 'grid-cols-[36px_1fr_1fr_40px_32px]'}`}>
                         <div className="text-center text-[9px] font-bold text-white/35 uppercase tracking-wider">№</div>
                         <div className="text-center text-[9px] font-bold text-white/35 uppercase tracking-wider">
                           {isTimeType ? 'Секунди' : 'Кг'}
                         </div>
                         {!isTimeType && <div className="text-center text-[9px] font-bold text-white/35 uppercase tracking-wider">Повтори</div>}
+                        <div />
                         <div />
                       </div>
 
@@ -381,7 +666,7 @@ export default function WorkoutPage() {
                           return (
                             <div
                               key={set.id}
-                              className={`grid gap-2 items-center rounded-xl px-1 py-1 transition-all duration-200 ${isTimeType ? 'grid-cols-[36px_1fr_40px]' : 'grid-cols-[36px_1fr_1fr_40px]'} ${isDone ? 'bg-[#A3E635]/5' : 'hover:bg-white/[0.02]'}`}
+                              className={`grid gap-2 items-center rounded-xl px-1 py-1 transition-all duration-200 ${isTimeType ? 'grid-cols-[36px_1fr_40px_32px]' : 'grid-cols-[36px_1fr_1fr_40px_32px]'} ${isDone ? 'bg-[#A3E635]/5' : 'hover:bg-white/[0.02]'} group/set`}
                             >
                               {/* Номер підходу */}
                               <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold font-mono transition-colors ${isDone ? 'bg-[#A3E635]/15 text-[#A3E635]' : 'bg-white/[0.04] text-white/30'}`}>
@@ -424,6 +709,16 @@ export default function WorkoutPage() {
                                   }`}
                               >
                                 <IconCheck className={`w-4 h-4 ${isDone ? 'text-[#080b10]' : 'text-white/20'}`} />
+                              </button>
+
+                              {/* Кнопка видалення */}
+                              <button
+                                onClick={() => handleDeleteSet(set.id)}
+                                className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-red-500/60 hover:bg-red-500/5 transition-all"
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
                               </button>
                             </div>
                           )
@@ -482,7 +777,7 @@ export default function WorkoutPage() {
 
       {/* ТАЙМЕР ВІДПОЧИНКУ */}
       {isResting && (
-        <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
           <div className="flex flex-col items-center gap-2">
             {/* Вибір тривалості */}
             {showRestPicker && (
@@ -516,7 +811,7 @@ export default function WorkoutPage() {
             {/* Пропустити */}
             <button
               onClick={() => { setRestTimer(0); setIsResting(false); setShowRestPicker(false) }}
-              className="text-[9px] font-bold text-white/30 hover:text-white uppercase tracking-wider transition-colors"
+              className="text-[9px] font-bold text-white/30 hover:text-white uppercase tracking-wider transition-colors bg-[#080b10] px-4 py-1.5 rounded-full border border-white/[0.05]"
             >
               Пропустити
             </button>

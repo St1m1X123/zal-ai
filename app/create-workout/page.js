@@ -24,7 +24,7 @@ export default function CreateWorkoutPage() {
     fetchExercises()
   }, [])
 
-  const categories = ['Усі', 'Груди', 'Спина', 'Ноги', 'Плечі', 'Руки', 'Прес', 'Кардіо', 'Інше']
+  const categories = ['Усі', 'Груди', 'Спина', 'Ноги', 'Плечі', 'Руки', 'Прес', 'Кардіо', 'Розтяжка', 'Інше']
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [activeExerciseId, setActiveExerciseId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')

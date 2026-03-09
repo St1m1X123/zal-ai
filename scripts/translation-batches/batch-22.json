@@ -1,0 +1,314 @@
+[
+  {
+    "id": "Seated_Dumbbell_Curl",
+    "name": "Seated Dumbbell Curl",
+    "instructions": [
+      "Sit on a flat bench with a dumbbell on each hand being held at arms length. The elbows should be close to the torso.",
+      "Rotate the palms of the hands so that they are facing your torso. This will be your starting position.",
+      "While holding the upper arm stationary, curl the weights and start twisting the wrists once the dumbbells pass your thighs so that the palms of your hands face forward at the end of the movement. Make sure that you contract the biceps as you breathe out and make sure that only the forearms move. Continue the movement until your biceps are fully contracted and the dumbbells are at shoulder level. Hold the contracted position for a second as you squeeze the biceps.",
+      "Slowly begin to bring the dumbbells back to the starting position as your breathe in and as you rotate the wrists back to a neutral grip.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Seated_Dumbbell_Inner_Biceps_Curl",
+    "name": "Seated Dumbbell Inner Biceps Curl",
+    "instructions": [
+      "Sit on the end of a flat bench with a dumbbell in each hand being held at arms length. The elbows should be close to the torso.",
+      "Rotate the palms of the hands so that they are facing inward in a neutral position. This will be your starting position.",
+      "While holding the upper arms stationary, curl the dumbbells out and up, turning the palms out as you lift and keeping your forearms in line with your outer deltoids. Tips:",
+      "Only the forearms should move. Continue the movement until your biceps are fully contracted and the dumbbells are at shoulder level. Hold the contracted position for a second as you squeeze the biceps.",
+      "Slowly begin to bring the dumbbells back to the starting position as your breathe in. Remember to rotate your arms as you lower the dumbbells so that you can switch back to a neutral grip.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Seated_Dumbbell_Palms-Down_Wrist_Curl",
+    "name": "Seated Dumbbell Palms-Down Wrist Curl",
+    "instructions": [
+      "Start out by placing two dumbbells on the floor in front of a flat bench.",
+      "Sit down on the edge of the flat bench with your legs at about shoulder width apart. Make sure to keep your feet on the floor.",
+      "Use your arms to grab both of the dumbbells and bring them up so that your forearms are resting against your thighs with the palms of the hands facing down. Your wrists should be hanging over the edge of your thighs.",
+      "Start out by curling your wrist upwards and exhaling.",
+      "Slowly lower your wrists back down to the starting position while inhaling. Make sure to inhale during this part of the exercise. Tip: Your forearms should be stationary as your wrist is the only movement needed to perform this exercise.",
+      "Repeat for the recommended amount of repetitions.",
+      "When finished, simply lower the dumbbells to the floor."
+    ]
+  },
+  {
+    "id": "Seated_Dumbbell_Palms-Up_Wrist_Curl",
+    "name": "Seated Dumbbell Palms-Up Wrist Curl",
+    "instructions": [
+      "Start out by placing two dumbbells on the floor in front of a flat bench.",
+      "Sit down on the edge of the flat bench with your legs at about shoulder width apart. Make sure to keep your feet on the floor.",
+      "Use your arms to grab both of the dumbbells and bring them up so that your forearms are resting against your thighs with the palms of the hands facing up. Your wrists should be hanging over the edge of your thighs.",
+      "Start out by curling your wrist upwards and exhaling.",
+      "Slowly lower your wrists back down to the starting position while inhaling. Make sure to inhale during this part of the exercise. Tip: Your forearms should be stationary as your wrist is the only movement needed to perform this exercise.",
+      "Repeat for the recommended amount of repetitions.",
+      "When finished, simply lower the dumbbells to the floor."
+    ]
+  },
+  {
+    "id": "Seated_Dumbbell_Press",
+    "name": "Seated Dumbbell Press",
+    "instructions": [
+      "Grab a couple of dumbbells and sit on a military press bench or a utility bench that has a back support on it as you place the dumbbells upright on top of your thighs.",
+      "Clean the dumbbells up one at a time by using your thighs to bring the dumbbells up to shoulder height at each side.",
+      "Rotate the wrists so that the palms of your hands are facing forward. This is your starting position.",
+      "As you exhale, push the dumbbells up until they touch at the top.",
+      "After a second pause, slowly come down back to the starting position as you inhale.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Seated_Flat_Bench_Leg_Pull-In",
+    "name": "Seated Flat Bench Leg Pull-In",
+    "instructions": [
+      "Sit on a bench with the legs stretched out in front of you slightly below parallel and your arms holding on to the sides of the bench. Your torso should be leaning backwards around a 45-degree angle from the bench. This will be your starting position.",
+      "Bring the knees in toward you as you move your torso closer to them at the same time. Breathe out as you perform this movement.",
+      "After a second pause, go back to the starting position as you inhale.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Seated_Floor_Hamstring_Stretch",
+    "name": "Seated Floor Hamstring Stretch",
+    "instructions": [
+      "Sit on a mat with your right leg extended in front of you and your left leg bent with your foot against your right inner thigh.",
+      "Lean forward from your hips and reach for your ankle until you feel a stretch in your hamstring. Hold for 15 seconds, then repeat for your other side."
+    ]
+  },
+  {
+    "id": "Seated_Front_Deltoid",
+    "name": "Seated Front Deltoid",
+    "instructions": [
+      "Sit upright on the floor with your legs bent, your partner standing behind you. Stick your arms straight out to your sides, with your palms facing the ground. Attempt to move them as far behind you as possible, as your assistant holds your wrists. This will be your starting position.",
+      "Keeping your elbows straight, attempt to move your arms to the front, with your partner gently restraining you to prevent any actual movement for 10-20 seconds.",
+      "Now, relax your muscles and allow your partner to gently increase the stretch on the shoulders and chest. Hold for 10 to 20 seconds."
+    ]
+  },
+  {
+    "id": "Seated_Glute",
+    "name": "Seated Glute",
+    "instructions": [
+      "In a seated position with your knees bent, cross one ankle over the opposite knee. Your partner will stand behind you. Now, lean forward as your partner braces your shoulders with their hands. This will be your starting position.",
+      "Attempt to push your torso back for 10-20 seconds, as your partner prevents any actual movement of your torso.",
+      "Now relax your muscles as your partner increases the stretch by gently pushing your torso forward for 10-20 seconds."
+    ]
+  },
+  {
+    "id": "Seated_Good_Mornings",
+    "name": "Seated Good Mornings",
+    "instructions": [
+      "Set up a box in a power rack. The pins should be set at an appropriate height. Begin by stepping under the bar and placing it across the back of the shoulders, not on top of your traps. Squeeze your shoulder blades together and rotate your elbows forward, attempting to bend the bar across your shoulders.",
+      "Remove the bar from the rack, creating a tight arch in your lower back. Keep your head facing forward. With your back, shoulders, and core tight, push your knees and butt out and you begin your descent. Sit back with your hips until you are seated on the box. This will be your starting position.",
+      "Keeping the bar tight, bend forward at the hips as much as possible. If you set the pins to what would be parallel, you not only have a safety if you fail, but know when to stop.",
+      "Pause just above the pins and reverse the motion until your torso it upright."
+    ]
+  },
+  {
+    "id": "Seated_Hamstring",
+    "name": "Seated Hamstring",
+    "instructions": [
+      "In a seated position with your legs extended, have your partner stand behind you. Now, lean forward as your partner braces your shoulders with their hands. This will be your starting position.",
+      "Attempt to push your torso back for 10-20 seconds, as your partner prevents any actual movement of your torso.",
+      "Now relax your muscles as your partner increases the stretch by gently pushing your torso forward for 10-20 seconds."
+    ]
+  },
+  {
+    "id": "Seated_Hamstring_and_Calf_Stretch",
+    "name": "Seated Hamstring and Calf Stretch",
+    "instructions": [
+      "Loop a belt, rope, or band around one foot. Sit down with both legs extended . This will be your starting position.",
+      "Leaning forward slightly, pull on the belt to draw the toes of your foot back. Hold this position for 10-20 seconds and then repeat with the other leg."
+    ]
+  },
+  {
+    "id": "Seated_Head_Harness_Neck_Resistance",
+    "name": "Seated Head Harness Neck Resistance",
+    "instructions": [
+      "Place a neck strap on the floor at the end of a flat bench. Once you have selected the weights, sit at the end of the flat bench with your feet wider than shoulder width apart from each other. Your toes should be pointed out.",
+      "Slowly move your torso forward until it is almost parallel with the floor. Using both hands, securely position the neck strap around your head. Tip: Make sure the weights are still lying on the floor to prevent any strain on the neck. Now grab the weight with both hands while elevating your torso back until it is almost perpendicular to the floor. Note: Your head and torso needs to be slightly tilted forward to perform this exercise.",
+      "Now place both hands on top of your knees. This is the starting position.",
+      "Slowly lower your neck down until your chin touches the upper part of your chest while breathing in.",
+      "While exhaling, bring your neck back to the starting position.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Seated_Leg_Curl",
+    "name": "Seated Leg Curl",
+    "instructions": [
+      "Adjust the machine lever to fit your height and sit on the machine with your back against the back support pad.",
+      "Place the back of lower leg on top of padded lever (just a few inches under the calves) and secure the lap pad against your thighs, just above the knees. Then grasp the side handles on the machine as you point your toes straight (or you can also use any of the other two stances) and ensure that the legs are fully straight right in front of you. This will be your starting position.",
+      "As you exhale, pull the machine lever as far as possible to the back of your thighs by flexing at the knees. Keep your torso stationary at all times. Hold the contracted position for a second.",
+      "Slowly return to the starting position as you breathe in.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Seated_Leg_Tucks",
+    "name": "Seated Leg Tucks",
+    "instructions": [
+      "Sit on a bench with the legs stretched out in front of you slightly below parallel and your arms holding on to the sides of the bench. Your torso should be leaning backwards around a 45-degree angle from the bench. This will be your starting position.",
+      "Bring the knees in toward you as you move your torso closer to them at the same time. Breathe out as you perform this movement.",
+      "After a second pause, go back to the starting position as you inhale.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Seated_One-Arm_Dumbbell_Palms-Down_Wrist_Curl",
+    "name": "Seated One-Arm Dumbbell Palms-Down Wrist Curl",
+    "instructions": [
+      "Sit on a flat bench with a dumbbell in your right hand.",
+      "Place your feet flat on the floor, at a distance that is slightly wider than shoulder width apart.",
+      "Lean forward and place your right forearm on top of your upper right thigh with your palm down. Tip: Make sure that the back of the wrist lies on top of your knees. This will be your starting position.",
+      "Lower the dumbbell as far as possible as you keep a tight grip on the dumbbell. Inhale as you perform this movement.",
+      "Now curl the dumbbell as high as possible as you contract the forearms and as you exhale. Keep the contraction for a second before you lower again. Tip: The only movement should happen at the wrist.",
+      "Perform for the recommended amount of repetitions, switch arms and repeat the movement."
+    ]
+  },
+  {
+    "id": "Seated_One-Arm_Dumbbell_Palms-Up_Wrist_Curl",
+    "name": "Seated One-Arm Dumbbell Palms-Up Wrist Curl",
+    "instructions": [
+      "Sit on a flat bench with a dumbbell in your right hand.",
+      "Place your feet flat on the floor, at a distance that is slightly wider than shoulder width apart.",
+      "Lean forward and place your right forearm on top of your upper right thigh with your palm up. Tip: Make sure that the front of the wrist lies on top of your knees. This will be your starting position.",
+      "Lower the dumbbell as far as possible as you keep a tight grip on the dumbbell. Inhale as you perform this movement.",
+      "Now curl the dumbbell as high as possible as you contract the forearms and as you exhale. Keep the contraction for a second before you lower again. Tip: The only movement should happen at the wrist.",
+      "Perform for the recommended amount of repetitions, switch arms and repeat the movement."
+    ]
+  },
+  {
+    "id": "Seated_One-arm_Cable_Pulley_Rows",
+    "name": "Seated One-arm Cable Pulley Rows",
+    "instructions": [
+      "To get into the starting position, first sit down on the machine and place your feet on the front platform or crossbar provided making sure that your knees are slightly bent and not locked.",
+      "Lean over as you keep the natural alignment of your back and grab the single handle attachment with your left arm using a palms-down grip.",
+      "With your arm extended pull back until your torso is at a 90-degree angle from your legs. Your back should be slightly arched and your chest should be sticking out. You should be feeling a nice stretch on your lat as you hold the bar in front of you. The right arm can be kept by the waist. This is the starting position of the exercise.",
+      "Keeping the torso stationary, pull the handles back towards your torso while keeping the arms close to it as you rotate the wrist, so that by the time your hand is by your abdominals it is in a neutral position (palms facing the torso). Breathe out as you perform that movement. At that point you should be squeezing your back muscles hard.",
+      "Hold that contraction for a second and slowly go back to the original position while breathing in. Tip: Remember to rotate the wrist as you go back to the starting position so that the palms are facing down again.",
+      "Repeat for the recommended amount of repetitions and then perform the same movement with the right hand."
+    ]
+  },
+  {
+    "id": "Seated_Overhead_Stretch",
+    "name": "Seated Overhead Stretch",
+    "instructions": [
+      "Sit up straight on an exercise mat.",
+      "Touch the soles of your feet together with your feet six to eight inches in front of your hips.",
+      "Place one hand on the floor beside you and your other hand behind your head.",
+      "Lift your elbow to the ceiling as you incline your torso to the other side. Hold for 10 to 20 seconds, then switch sides."
+    ]
+  },
+  {
+    "id": "Seated_Palm-Up_Barbell_Wrist_Curl",
+    "name": "Seated Palm-Up Barbell Wrist Curl",
+    "instructions": [
+      "Hold a barbell with both hands and your palms facing up; hands spaced about shoulder width.",
+      "Place your feet flat on the floor, at a distance that is slightly wider than shoulder width apart.",
+      "Lean forward and place your forearms on top of your upper thighs with your palms up. Tip: Make sure that the front of the wrists lay on top of your knees. This will be your starting position.",
+      "Lower the bar as far as possible while inhaling and keeping a tight grip.",
+      "Now curl bar up as high as possible while flexing the forearms and exhaling. Hold the contraction at the top for a second and Tip: Only the wrist should move."
+    ]
+  },
+  {
+    "id": "Seated_Palms-Down_Barbell_Wrist_Curl",
+    "name": "Seated Palms-Down Barbell Wrist Curl",
+    "instructions": [
+      "Hold a barbell with both hands and your palms facing down; hands spaced about shoulder width.",
+      "Place your feet flat on the floor, at a distance that is slightly wider than shoulder width apart.",
+      "Lean forward and place your forearms on top of your upper thighs with your palms down. Tip: Make sure that the back of the wrists lay on top of your knees. This will be your starting position.",
+      "Lower the bar as far as possible while inhaling and keeping a tight grip.",
+      "Now curl bar up as high as possible while flexing the forearms and exhaling. Hold the contraction at the top for a second and Tip: Only the wrist should move."
+    ]
+  },
+  {
+    "id": "Seated_Side_Lateral_Raise",
+    "name": "Seated Side Lateral Raise",
+    "instructions": [
+      "Pick a couple of dumbbells and sit at the end of a flat bench with your feet firmly on the floor. Hold the dumbbells with your palms facing in and your arms straight down at your sides at arms' length. This will be your starting position.",
+      "While maintaining the torso stationary (no swinging), lift the dumbbells to your side with a slight bend on the elbow and the hands slightly tilted forward as if pouring water in a glass. Continue to go up until you arms are parallel to the floor. Exhale as you execute this movement and pause for a second at the top.",
+      "Lower the dumbbells back down slowly to the starting position as you inhale.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Seated_Triceps_Press",
+    "name": "Seated Triceps Press",
+    "instructions": [
+      "Sit down on a bench with back support and grasp a dumbbell with both hands and hold it overhead at arm's length. Tip: a better way is to have somebody hand it to you especially if it is very heavy. The resistance should be resting in the palms of your hands with your thumbs around it. The palm of the hand should be facing inward. This will be your starting position.",
+      "Keeping your upper arms close to your head (elbows in) and perpendicular to the floor, lower the resistance in a semi-circular motion behind your head until your forearms touch your biceps. Tip: The upper arms should remain stationary and only the forearms should move. Breathe in as you perform this step.",
+      "Go back to the starting position by using the triceps to raise the dumbbell. Breathe out as you perform this step.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Seated_Two-Arm_Palms-Up_Low-Pulley_Wrist_Curl",
+    "name": "Seated Two-Arm Palms-Up Low-Pulley Wrist Curl",
+    "instructions": [
+      "Put a bench in front of a low pulley machine that has a barbell or EZ Curl attachment on it.",
+      "Move the bench far enough away so that when you bring the handle to the top of your thighs tension is created on the cable due to the weight stack being moved up.",
+      "Now hold the handle with both hands, palms up, using a shoulder-width grip.",
+      "Step back and sit on the bench with your feet about shoulder width apart, firmly on the floor.",
+      "Lean forward and place the forearms on your thighs with the back of your wrists over your knees. This will be your starting position.",
+      "Lower the bar as far as possible, while inhaling and keeping a tight grip.",
+      "Now curl the bar up as high as possible while contracting the forearms. Tip: Only the wrist should move; not the forearms.",
+      "After a second contraction at the top go back to the starting position as you inhale.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "See-Saw_Press_Alternating_Side_Press",
+    "name": "See-Saw Press (Alternating Side Press)",
+    "instructions": [
+      "Grab a dumbbell with each hand and stand up erect.",
+      "Clean (lift) the dumbbells to the chest/shoulder level and then rotate your wrists so that your palms are facing towards you as if you were getting ready to perform an Arnold Press. This will be your starting position.",
+      "Now start extending your left arm overhead as you rotate the wrist so that the palm of your hand faces forward as you go up. Your elbows should come out also as you lift the weight. Simultaneously, you will also be bending from your hip to your opposite side. Tip: If you perform the exercise correctly, is should look as if you are trying to reach for something overhead on the right hand side of your body, but with your left arm. Breathe out as you perform this movement.",
+      "Once you reach the top position breathe in. Then, with the weight fully extended overhead and you bent over to your right hand side, begin the movement to the left side.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Shotgun_Row",
+    "name": "Shotgun Row",
+    "instructions": [
+      "Attach a single handle to a low cable.",
+      "After selecting the correct weight, stand a couple feet back with a wide-split stance. Your arm should be extended and your shoulder forward. This will be your starting position.",
+      "Perform the movement by retracting the shoulder and flexing the elbow. As you pull, supinate the wrist, turning the palm upward as you go.",
+      "After a brief pause, return to the starting position."
+    ]
+  },
+  {
+    "id": "Shoulder_Circles",
+    "name": "Shoulder Circles",
+    "instructions": [
+      "With shoulders relaxed and arms resting loosely at your sides (or in your lap if you're seated), gently roll your shoulders forward, up, back, and down.",
+      "Reverse direction. You can do this exercise alternating shoulders or both at the same time."
+    ]
+  },
+  {
+    "id": "Shoulder_Press_-_With_Bands",
+    "name": "Shoulder Press - With Bands",
+    "instructions": [
+      "To begin, stand on an exercise band so that tension begins at arm's length. Grasp the handles and lift them so that the hands are at shoulder height at each side.",
+      "Rotate the wrists so that the palms of your hands are facing forward. Your elbows should be bent, with the upper arms and forearms in line to the torso. This is your starting position.",
+      "As you exhale, lift the handles up until your arms are fully extended overhead."
+    ]
+  },
+  {
+    "id": "Shoulder_Raise",
+    "name": "Shoulder Raise",
+    "instructions": [
+      "Relax your arms to your sides and raise your shoulders up toward your ears, then back down."
+    ]
+  },
+  {
+    "id": "Shoulder_Stretch",
+    "name": "Shoulder Stretch",
+    "instructions": [
+      "Reach your left arm across your body and hold it straight."
+    ]
+  }
+]

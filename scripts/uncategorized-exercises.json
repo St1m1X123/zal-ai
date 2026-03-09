@@ -1,0 +1,490 @@
+[
+  {
+    "id": "Alternating_Kettlebell_Press",
+    "name": "Поперемінний жим гир стоячи"
+  },
+  {
+    "id": "Around_The_Worlds",
+    "name": "Вправа «Навколо світу» з гантелями"
+  },
+  {
+    "id": "Balance_Board",
+    "name": "Балансувальна дошка"
+  },
+  {
+    "id": "Band_Pull_Apart",
+    "name": "Розтягування еспандера перед собою"
+  },
+  {
+    "id": "Barbell_Rollout_from_Bench",
+    "name": "Викочування зі штангою з лави"
+  },
+  {
+    "id": "Barbell_Side_Bend",
+    "name": "Нахили в сторони зі штангою"
+  },
+  {
+    "id": "Battling_Ropes",
+    "name": "Вправи з бойовими канатами"
+  },
+  {
+    "id": "Bent-Arm_Barbell_Pullover",
+    "name": "Пуловер зі штангою зігнутими руками"
+  },
+  {
+    "id": "Bent-Arm_Dumbbell_Pullover",
+    "name": "Пуловер з гантеллю зігнутими руками"
+  },
+  {
+    "id": "Bent_Over_Low-Pulley_Side_Lateral",
+    "name": "Махи рукою в сторону з нижнього блоку в нахилі"
+  },
+  {
+    "id": "Board_Press",
+    "name": "Жим штанги з бруска"
+  },
+  {
+    "id": "Body-Up",
+    "name": "Підйом з планки"
+  },
+  {
+    "id": "Box_Skip",
+    "name": "Перестрибування через тумби"
+  },
+  {
+    "id": "Bradford_Rocky_Presses",
+    "name": "Жим Бредфорда (Жим Роккі)"
+  },
+  {
+    "id": "Butt-Ups",
+    "name": "Підйом таза з планки"
+  },
+  {
+    "id": "Butt_Lift_Bridge",
+    "name": "Сідничний місток"
+  },
+  {
+    "id": "Cable_Incline_Pushdown",
+    "name": "Пуловер на верхньому блоці на похилій лаві"
+  },
+  {
+    "id": "Cable_Judo_Flip",
+    "name": "Кидок дзюдо на нижньому блоці"
+  },
+  {
+    "id": "Car_Drivers",
+    "name": "Вправа «Кермо» з диском"
+  },
+  {
+    "id": "Carioca_Quick_Step",
+    "name": "Вправа «Каріока» (перехресний крок)"
+  },
+  {
+    "id": "Chain_Press",
+    "name": "Жим ланцюгів лежачи"
+  },
+  {
+    "id": "Childs_Pose",
+    "name": "Поза дитини (Баласана)"
+  },
+  {
+    "id": "Circus_Bell",
+    "name": "Циркова гантель"
+  },
+  {
+    "id": "Conans_Wheel",
+    "name": "Колесо Конана"
+  },
+  {
+    "id": "Crucifix",
+    "name": "Утримання ваги в сторонах («Розп'яття»)"
+  },
+  {
+    "id": "Decline_Smith_Press",
+    "name": "Жим у машині Сміта на лаві з нахилом вниз"
+  },
+  {
+    "id": "Double_Kettlebell_Push_Press",
+    "name": "Швунг жимовий з двома гирями"
+  },
+  {
+    "id": "Double_Leg_Butt_Kick",
+    "name": "Стрибки із закиданням гомілок назад"
+  },
+  {
+    "id": "Downward_Facing_Balance",
+    "name": "Балансування обличчям вниз (на фітболі)"
+  },
+  {
+    "id": "Dumbbell_Scaption",
+    "name": "Підйоми гантелей у площині лопаток (Скапшн)"
+  },
+  {
+    "id": "Dumbbell_Side_Bend",
+    "name": "Нахили в сторони з гантеллю"
+  },
+  {
+    "id": "Elbow_Circles",
+    "name": "Обертання ліктями"
+  },
+  {
+    "id": "Farmers_Walk",
+    "name": "Прогулянка фермера"
+  },
+  {
+    "id": "Fast_Skipping",
+    "name": "Швидкі стрибки (Скіпінг)"
+  },
+  {
+    "id": "Flutter_Kicks",
+    "name": "Вправа «Ножиці» ногами (Флатер-кіки) на лаві"
+  },
+  {
+    "id": "Frog_Hops",
+    "name": "Стрибки жабки"
+  },
+  {
+    "id": "Front_Cable_Raise",
+    "name": "Підйом руки перед собою з нижнього блоку"
+  },
+  {
+    "id": "Front_Cone_Hops_or_hurdle_hops",
+    "name": "Стрибки через конуси (або бар'єри) вперед"
+  },
+  {
+    "id": "Front_Dumbbell_Raise",
+    "name": "Підйоми гантелей перед собою"
+  },
+  {
+    "id": "Front_Incline_Dumbbell_Raise",
+    "name": "Підйоми гантелей перед собою на похилій лаві"
+  },
+  {
+    "id": "Front_Plate_Raise",
+    "name": "Підйом диска перед собою"
+  },
+  {
+    "id": "Front_Two-Dumbbell_Raise",
+    "name": "Одночасні підйоми гантелей перед собою"
+  },
+  {
+    "id": "Groiners",
+    "name": "Стрибки ніг до рук з упору лежачи (Гройнери)"
+  },
+  {
+    "id": "Hanging_Pike",
+    "name": "Підйоми прямих ніг до перекладини у висі (Куток)"
+  },
+  {
+    "id": "Heavy_Bag_Thrust",
+    "name": "Штовхання боксерської груші"
+  },
+  {
+    "id": "Hip_Lift_with_Band",
+    "name": "Сідничний місток з еспандером"
+  },
+  {
+    "id": "Hug_A_Ball",
+    "name": "Обійми з фітболом"
+  },
+  {
+    "id": "Hurdle_Hops",
+    "name": "Стрибки через бар'єри"
+  },
+  {
+    "id": "Inchworm",
+    "name": "Вправа «Гусениця»"
+  },
+  {
+    "id": "Incline_Dumbbell_Press",
+    "name": "Жим гантелей лежачи на похилій лаві"
+  },
+  {
+    "id": "Iron_Cross",
+    "name": "Хрест (на кільцях / тренажерах)"
+  },
+  {
+    "id": "Isometric_Neck_Exercise_-_Sides",
+    "name": "Ізометрична вправа для шиї — з боків"
+  },
+  {
+    "id": "Isometric_Wipers",
+    "name": "Ізометричні «Двірники»"
+  },
+  {
+    "id": "JM_Press",
+    "name": "Жим JM"
+  },
+  {
+    "id": "Keg_Load",
+    "name": "Завантаження кегів"
+  },
+  {
+    "id": "Kettlebell_Figure_8",
+    "name": "«Вісімка» з гирею"
+  },
+  {
+    "id": "Kettlebell_Pass_Between_The_Legs",
+    "name": "Передача гирі між ногами"
+  },
+  {
+    "id": "Kettlebell_Pirate_Ships",
+    "name": "Махи з гирею з обертанням («Піратські кораблі»)"
+  },
+  {
+    "id": "Kettlebell_Seesaw_Press",
+    "name": "Поперемінний жим гир («Гойдалка»)"
+  },
+  {
+    "id": "Kettlebell_Thruster",
+    "name": "Трастери з гирями"
+  },
+  {
+    "id": "Kipping_Muscle_Up",
+    "name": "Вихід силою на кільцях з кіпінгом"
+  },
+  {
+    "id": "Landmine_180s",
+    "name": "Ротації з Т-грифом («Landmine 180's»)"
+  },
+  {
+    "id": "Landmine_Linear_Jammer",
+    "name": "Вибухові жими Т-грифа двома руками"
+  },
+  {
+    "id": "Lateral_Cone_Hops",
+    "name": "Бічні стрибки через конуси"
+  },
+  {
+    "id": "Leg_Lift",
+    "name": "Відведення ноги назад стоячи"
+  },
+  {
+    "id": "Linear_3-Part_Start_Technique",
+    "name": "Лінійна техніка старту з 3 частин"
+  },
+  {
+    "id": "Linear_Acceleration_Wall_Drill",
+    "name": "Вправа на лінійне прискорення біля стіни"
+  },
+  {
+    "id": "Log_Lift",
+    "name": "Підйом колоди"
+  },
+  {
+    "id": "London_Bridges",
+    "name": "Лондонські мости"
+  },
+  {
+    "id": "Monster_Walk",
+    "name": "Хода монстра (Кроки з еспандером)"
+  },
+  {
+    "id": "Muscle_Up",
+    "name": "Вихід силою на кільцях"
+  },
+  {
+    "id": "Neck_Press",
+    "name": "Жим штанги до шиї (Жим гільйотина)"
+  },
+  {
+    "id": "One-Arm_High-Pulley_Cable_Side_Bends",
+    "name": "Бокові нахили з верхнього блоку однією рукою"
+  },
+  {
+    "id": "One-Arm_Kettlebell_Para_Press",
+    "name": "Жим гирі однією рукою (Пара-жим)"
+  },
+  {
+    "id": "One-Arm_Kettlebell_Push_Press",
+    "name": "Швунг жимовий з гирею однією рукою"
+  },
+  {
+    "id": "One-Arm_Medicine_Ball_Slam",
+    "name": "Кидок медбола в підлогу однією рукою"
+  },
+  {
+    "id": "One-Arm_Side_Laterals",
+    "name": "Відведення однієї руки з гантеллю в сторону стоячи"
+  },
+  {
+    "id": "One_Half_Locust",
+    "name": "Поза половини сарани (Ардха Шалабхасана)"
+  },
+  {
+    "id": "One_Handed_Hang",
+    "name": "Вис на одній руці"
+  },
+  {
+    "id": "Overhead_Slam",
+    "name": "Кидок медбола в підлогу через голову"
+  },
+  {
+    "id": "Pallof_Press",
+    "name": "Жим Паллофа"
+  },
+  {
+    "id": "Pelvic_Tilt_Into_Bridge",
+    "name": "Сідничний місток з підкручуванням таза"
+  },
+  {
+    "id": "Physioball_Hip_Bridge",
+    "name": "Сідничний місток на фітболі"
+  },
+  {
+    "id": "Pin_Presses",
+    "name": "Жим штанги з обмежувачів (Pin Press)"
+  },
+  {
+    "id": "Power_Partials",
+    "name": "Махи гантелями в сторони з неповною амплітудою (Power Partials)"
+  },
+  {
+    "id": "Push_Press",
+    "name": "Швунг жимовий"
+  },
+  {
+    "id": "Push_Press_-_Behind_the_Neck",
+    "name": "Швунг жимовий через голову"
+  },
+  {
+    "id": "Pyramid",
+    "name": "Піраміда (на фітболі)"
+  },
+  {
+    "id": "Return_Push_from_Stance",
+    "name": "Зворотний кидок від грудей зі стійки"
+  },
+  {
+    "id": "Rickshaw_Carry",
+    "name": "Прогулянка фермера з рамою"
+  },
+  {
+    "id": "Rope_Climb",
+    "name": "Лазіння по канату"
+  },
+  {
+    "id": "Sandbag_Load",
+    "name": "Завантаження мішків з піском (Сендбегів)"
+  },
+  {
+    "id": "Seated_Barbell_Twist",
+    "name": "Повороти тулуба зі штангою сидячи"
+  },
+  {
+    "id": "Seated_Dumbbell_Press",
+    "name": "Жим гантелей сидячи"
+  },
+  {
+    "id": "See-Saw_Press_Alternating_Side_Press",
+    "name": "Жим «Гойдалка» (Поперемінний боковий жим гантелей)"
+  },
+  {
+    "id": "Side_to_Side_Box_Shuffle",
+    "name": "Бокові перескоки на тумбі"
+  },
+  {
+    "id": "Single-Arm_Linear_Jammer",
+    "name": "Вибуховий жим Т-грифа однією рукою"
+  },
+  {
+    "id": "Single-Leg_Hop_Progression",
+    "name": "Стрибки на одній нозі (прогресія)"
+  },
+  {
+    "id": "Single-Leg_Lateral_Hop",
+    "name": "Бічні стрибки на одній нозі"
+  },
+  {
+    "id": "Single_Dumbbell_Raise",
+    "name": "Підйом однієї гантелі перед собою двома руками"
+  },
+  {
+    "id": "Single_Leg_Push-off",
+    "name": "Відштовхування однією ногою від тумби"
+  },
+  {
+    "id": "Skating",
+    "name": "Катання на роликах"
+  },
+  {
+    "id": "Sled_Push",
+    "name": "Штовхання саней"
+  },
+  {
+    "id": "Smith_Machine_Hip_Raise",
+    "name": "Сідничний місток у тренажері Сміта"
+  },
+  {
+    "id": "Spell_Caster",
+    "name": "Вправа «Заклинатель» (Махи гантелями в сторони з ротацією)"
+  },
+  {
+    "id": "Spider_Crawl",
+    "name": "Хода павука"
+  },
+  {
+    "id": "Standing_Alternating_Dumbbell_Press",
+    "name": "Поперемінний жим гантелей стоячи"
+  },
+  {
+    "id": "Standing_Barbell_Press_Behind_Neck",
+    "name": "Жим штанги з-за голови стоячи"
+  },
+  {
+    "id": "Standing_Bradford_Press",
+    "name": "Жим Бредфорда стоячи"
+  },
+  {
+    "id": "Standing_Cable_Wood_Chop",
+    "name": "«Дроворуб» на верхньому блоці стоячи"
+  },
+  {
+    "id": "Standing_Dumbbell_Press",
+    "name": "Жим гантелей стоячи"
+  },
+  {
+    "id": "Standing_Front_Barbell_Raise_Over_Head",
+    "name": "Підйоми штанги перед собою над головою стоячи"
+  },
+  {
+    "id": "Standing_Olympic_Plate_Hand_Squeeze",
+    "name": "Здавлювання олімпійських дисків стоячи"
+  },
+  {
+    "id": "Standing_Pelvic_Tilt",
+    "name": "Нахили таза стоячи"
+  },
+  {
+    "id": "Stomach_Vacuum",
+    "name": "Вакуум живота"
+  },
+  {
+    "id": "Straight-Arm_Dumbbell_Pullover",
+    "name": "Пуловер з гантеллю прямими руками"
+  },
+  {
+    "id": "Straight_Raises_on_Incline_Bench",
+    "name": "Підйоми прямих рук на похилій лаві"
+  },
+  {
+    "id": "Suspended_Fallout",
+    "name": "Падіння вперед на петлях TRX"
+  },
+  {
+    "id": "Tate_Press",
+    "name": "Жим Тейта"
+  },
+  {
+    "id": "Tire_Flip",
+    "name": "Кантування покришки"
+  },
+  {
+    "id": "Weighted_Ball_Side_Bend",
+    "name": "Бічні нахили на фітболі з обтяженням"
+  },
+  {
+    "id": "Yoke_Walk",
+    "name": "Ходьба з коромислом"
+  }
+]

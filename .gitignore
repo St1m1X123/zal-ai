@@ -43,3 +43,10 @@ next-env.d.ts
 # sensitive information
 ParolSupabase
 .env.local
+
+# internal docs & planning
+PROJECT_MAP.md
+PROJECT-PLAN.md
+.agent/
+.agents/
+.gemini/

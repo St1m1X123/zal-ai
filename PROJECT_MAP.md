@@ -1,7 +1,7 @@
 # 🏋️‍♂️ ZalAI: PWA-трекер тренувань з AI-естетикою
 
-**Поточна версія:** 2.0 — Neural Athlete
-**Головна фішка:** "Smart Logging" (План-Факт). Додаток передзаповнює ваги та підходи з минулих тренувань. Користувач лише натискає "Виконано". Мінімум кліків у залі.
+**Поточна версія:** 3.0 — Neural Athlete Pro (GitHub Secured)
+**Головна фішка (v3):** AI-генерація повноцінних програм. Додаток не просто трекер, а кишеньковий тренер, який складає плани на тиждень, враховуючи цілі та історію занять.
 
 ---
 
@@ -9,93 +9,43 @@
 1. **Правило 50/50:** Жоден рядок коду не пишеться без обопільного затвердження. Спочатку логіка — потім код.
 2. **Якість важливіша за швидкість:** Якщо є рішення складніше, але правильніше — обираємо його.
 3. **Обов'язки ШІ:** Критикувати ідеї, пропонувати найкращі альтернативи.
-4. **Обов'язки Користувача:** Фінальне слово за вектором розвитку продукту.
+4. **UX мобільності:** Завжди пам'ятати, що користувач у залі, в нього пітні руки і мало часу. Кнопки мають бути великими, а дії — швидкими.
+5. **Безпека лімітів:** Всі AI-функції повинні бути захищені білим списком (Whitelist), щоб уникнути перевитрат на GitHub.
 
 ---
 
-## 🎨 Дизайн-система "Neural Athlete" (v2.0)
+## 🎨 Дизайн-система "Neural Athlete Pro" (v3.0)
 
 | Параметр | Значення |
 |---|---|
-| **Стиль** | Premuim dark UI, glassmorphism, AI-естетика |
-| **Фон** | `#080b10` + dot-grid патерн + 3 ambient orbs |
-| **Акцент 1 (Lime)** | `#A3E635` — активні стани, кнопки, прогрес |
-| **Акцент 2 (Cyan)** | `#22D3EE` — AI-елементи, суперсети, підказки |
-| **Акцент 3 (Violet)** | `#818CF8` — ambient декор |
-| **Текст** | White з прозорістю: `/90`, `/60`, `/40`, `/20` |
-| **Шрифт UI** | Space Grotesk (Google Fonts) |
-| **Шрифт чисел** | JetBrains Mono (Google Fonts) — всі імпути та таймери |
+| **Стиль** | Ultra-Premium dark, glassmorphism, Neural-glow |
+| **Фон** | `#080b10` + animated shadow orbs + dot grid |
+| **Акцент 1 (Lime)** | `#A3E635` — Сила, прогрес, виконання |
+| **Акцент 2 (Cyan)** | `#22D3EE` — AI-функції, суперсети, аналітика |
+| **Текст** | White (opacity: 90/60/40), Lime (для PR), Cyan (для AI) |
+| **Шрифт** | Space Grotesk (UI), JetBrains Mono (Цифри) |
 
-### Ключові CSS-утиліти (`globals.css`)
-- `neural-card` — glassmorphism карточка з border та фоном
-- `hero-card` — велика карточка з градієнтним glow
-- `ai-badge` — маленький cyan бейдж для AI-елементів
-- `glow-lime` / `glow-cyan` — текст з кольоровим glow
-- `dot-grid` — фоновий патерн з точок
-
-### UX у залі
-- Великі mono-інпути для цифр з підписами одиниць (кг / рп / хв / сек)
-- Таймер відпочинку з вибором тривалості (60 / 90 / 120 / 180 сек)
-- Floating pill-таймер відпочинку після кожного підходу
-- Кнопка "Все виконано" для швидкого завершення блоку
-- Екран завершення тренування зі статистикою
+### Ключові UX-рішення v3
+- **Nested Exercise Picker** — пошук вправ розгортається всередині модалки конфігуратора (не перевантажує форму).
+- **Info Icon (i)** — прямий перехід до сторінки вправи без втрати стану конфігуратора.
+- **State Persistence** — використання `sessionStorage` + `hasFetched` ref для безперебійного відновлення вибору при навігації.
+- **Secret Dev Mode** — 5 кліків на версію в профілі відкривають адмін-тумблер Pro-статусу.
 
 ---
 
-## 🛠 Стек технологій
-- **Фреймворк:** Next.js 16+ (App Router)
-- **Стилі:** Tailwind CSS v4 (через `@import "tailwindcss";`)
-- **База даних + Auth:** Supabase (PostgreSQL) + `@supabase/ssr`
-- **Шрифти:** Google Fonts (Space Grotesk, JetBrains Mono) — `next/font/google`
-- **Хостинг:** Vercel
-- **Формат:** PWA (Progressive Web App)
+## 🗄 Структура Бази Даних (Supabase)
 
----
+### 1. `profiles`
+* `gender`, `age`, `height_cm`, `weight_kg`, `goal`, `experience`, `location`, `equipment`, `days_per_week`, `duration_min`, `health_tags`, `health_notes`, `is_pro` [NEW].
 
-## 🗄 База даних (Supabase)
+### 2. `exercises` (800+ вправ)
+* `id`, `name`, `type` (`weight`, `bodyweight`, `time`), `muscle`, `muscle_group`, `instructions`, `gif_url`.
 
-### 1. `exercises` — Довідник вправ
-| Поле | Тип | Опис |
-|---|---|---|
-| `id` | UUID PK | |
-| `user_id` | UUID FK | NULL = глобальна; заповнено = кастомна юзера |
-| `name` | String | Назва вправи |
-| `type` | String | `weight_reps`, `bodyweight`, `time` |
-| `muscle` | String | Група м'язів для фільтрації |
+### 3. `programs`
+* `id`, `user_id`, `name`, `goal`, `days_per_week`.
 
-### 2. `workouts` — Тренування та шаблони
-| Поле | Тип | Опис |
-|---|---|---|
-| `id` | UUID PK | |
-| `user_id` | UUID FK | |
-| `name` | String | Назва |
-| `date` | Date | Дата |
-| `is_template` | Boolean | `true` = шаблон, `false` = реальне тренування |
-| `status` | String | `in_progress` або `completed` |
-
-### 3. `workout_exercises` — Вправи в тренуванні
-| Поле | Тип | Опис |
-|---|---|---|
-| `id` | UUID PK | |
-| `workout_id` | UUID FK | |
-| `exercise_id` | UUID FK | |
-| `order` | Number | Порядок відображення |
-| `superset_id` | UUID | Однаковий ID = суперсет |
-
-### 4. `sets` — Підходи
-| Поле | Тип | Опис |
-|---|---|---|
-| `id` | UUID PK | |
-| `workout_exercise_id` | UUID FK | |
-| `order` | Number | Номер підходу |
-| `weight` | Number | Вага (кг) |
-| `reps` | Number | Повторення |
-| `time_seconds` | Number | Час (для планки/кардіо) |
-| `note` | String | Нотатка |
-| `is_completed` | Boolean | Чи виконано (кнопка "Виконано") |
-
-### 5. Supabase RPC
-- `start_workout_from_template(p_template_id, p_user_id, p_workout_name)` — Атомарне копіювання шаблону в нове тренування
+### 4. `workouts`
+* `program_id`, `is_template`, `status` (`in_progress`, `completed`), `date`.
 
 ---
 
@@ -104,52 +54,39 @@
 ```
 /
 ├── app/
-│   ├── globals.css              ← Дизайн-система v2: кольори, шрифти, @utility класи, анімації
-│   ├── layout.js                ← Root layout: шрифти (Space Grotesk + JetBrains Mono),
-│   │                               dot-grid фон, 3 ambient orbs (lime/cyan/violet)
-│   ├── page.js                  ← Головна: Лендінг (не авторизовано) + Dashboard (авторизовано)
-│   │                               Dashboard: hero-кнопка "Тренування", список програм, остання активність
-│   ├── programs/
-│   │   └── page.js              ← Список програм-шаблонів з кількістю вправ, кнопки старту/видалення
-│   ├── create-workout/
-│   │   └── page.js              ← Конструктор шаблонів: вправи, суперсети, типи вправ
-│   ├── workout/
-│   │   └── [id]/
-│   │       └── page.js          ← Бойовий екран: live-таймер сесії, прогрес-бар,
-│   │                               +підхід під час сесії, вибір тривалості відпочинку,
-│   │                               екран завершення зі статистикою
-│   ├── profile/
-│   │   └── page.js              ← Профіль: герой з аватаром, 4 картки статистики,
-│   │                               GitHub-style heat-map активності (7 тижнів), logout
-│   └── auth/callback/
-│       └── route.js             ← API шлюз Google OAuth
-├── components/
-│   ├── BottomNav.js             ← Навігація: glassmorphism pill, lime акцент, українські підписи
-│   ├── ExerciseSelector.js      ← Шторка вибору вправ: controlled (create) і standalone (workout)
-│   │                               режими, пошук, фільтр по категорії, створення кастомних вправ
-│   └── ExerciseBlock.js         ← Блок вправи в конструкторі: neural-card, типи (вага/власна/час),
-│                                   наочні підписи одиниць (кг/рп/хв/сек), суперсет cyan бейдж
+│   ├── api/
+│   │   ├── generate-program/   ← [SECURE] Генерація програм + Whitelist check
+│   │   ├── generate-workout/   ← [SECURE] Генерація тренування + Whitelist check
+│   │   └── debug-models/       ← Інструмент перевірки LLM моделей
+│   ├── onboarding/             ← Покрокова анкета (BMI, цілі, інвентар)
+│   ├── programs/               ← Керування програмами та AI-планами
+│   ├── exercises/[id]/         ← Деталі вправи: техніка + PR сторінка
+│   ├── workout/[id]/           ← Бойовий екран (Timer, Sets, Deletion)
+│   ├── create-workout/         ← Конструктор вільного тренування
+│   ├── template/[id]/          ← Редактор та перегляд шаблонів
+│   ├── auth/                   ← OAuth callback та логіка авторизації
+│   ├── profile/                ← Картка атлета (Heat-map, PRs, Secret Mode)
+│   ├── page.js                 ← Головна: Dashboard + Neural Configurator
+│   └── layout.js               ← Fonts, Global Styles, Navbar
 ├── lib/
-│   └── supabase.js              ← Підключення до Supabase
-├── public/
-│   └── manifest.json            ← PWA конфігурація
-├── PROJECT_MAP.md               ← Цей файл
-└── [Конфіги] (.env.local, package.json, next.config.mjs...)
+│   └── supabase.js             ← Ініціалізація та налаштування клієнта DB
+├── .env.example                ← Шаблон з інструкціями по безпеці та Whitelist
+├── PROJECT_MAP.md              ← Цей файл (Source of Truth)
+└── [Configs]                   ← tailwind.config, package.json
 ```
+
+---
+
+## 🛡 Безпека та Whitelist
+Для захисту API від несанкціонованого використання на GitHub впроваджено:
+- **Environment Whitelist**: Змінна `ADMIN_EMAILS` у `.env.local` містить список дозволених пошт.
+- **Server Guard**: Кожен запит до AI перевіряється на відповідність email користувача списку адмінів.
 
 ---
 
 ## 🗺 Дорожня карта (Roadmap)
 
-- [x] **Крок 1:** Next.js + Tailwind v4 + Supabase (таблиці, RLS)
-- [x] **Крок 2:** Авторизація через Google (OAuth)
-- [x] **Крок 3:** База вправ з групами м'язів
-- [x] **Крок 4:** Dashboard — список шаблонів, остання активність
-- [x] **Крок 5:** Smart Logging — копіювання шаблону в нове тренування (RPC)
-- [x] **Крок 6:** Бойовий екран — підходи, кнопка "Виконано", таймер відпочинку
-- [x] **Крок 7:** Конструктор програм — суперсети, пошук, кастомні вправи
-- [x] **Крок 8:** Редизайн v2.0 "Neural Athlete" — нова дизайн-система, всі сторінки та компоненти
-- [x] **Крок 9:** Профіль — реальна статистика, heat-map активності
-- [x] **Крок 10:** UX покращення — +підхід під час тренування, вибір часу відпочинку, екран завершення
-- [ ] **Крок 11:** PWA — `manifest.json`, деплой на Vercel, тестування на телефоні
-- [ ] **Крок 12:** AI-аналітика — рекомендації по вазі, прогрес-графіки, тижневий звіт
+- [x] **v3.0:** AI-програми, Onboarding, Exercise Detail Pages
+- [x] **v3.1:** GitHub Security Layer, State Recovery, Nested Picker
+- [ ] **v3.5:** PWA Offline-mode, Push-сповіщення
+- [ ] **v4.0:** AI-Vision (аналіз техніки через камеру)

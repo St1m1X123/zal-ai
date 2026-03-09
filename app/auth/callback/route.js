@@ -5,11 +5,11 @@ import { cookies } from 'next/headers'
 export async function GET(request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
+  const next = searchParams.get('next') ?? '/'
 
   if (code) {
-    // В Next.js 16 куки вызываются асинхронно
     const cookieStore = await cookies()
-    
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -23,18 +23,20 @@ export async function GET(request) {
               cookiesToSet.forEach(({ name, value, options }) =>
                 cookieStore.set(name, value, options)
               )
-            } catch (error) {
-              // Игнорируем ошибку, если куки пытаются установиться из серверного компонента
+            } catch {
+              // Ignore if called from Server Component
             }
           },
         },
       }
     )
-    
-    // Обмениваем код от Google на ключи доступа к базе
-    await supabase.auth.exchangeCodeForSession(code)
+
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error) {
+      return NextResponse.redirect(`${origin}${next}`)
+    }
   }
 
-  // Возвращаем тебя на главную
-  return NextResponse.redirect(origin)
+  // Fallback — redirect to landing
+  return NextResponse.redirect(`${origin}/`)
 }

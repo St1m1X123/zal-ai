@@ -2,27 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { supabase } from '../lib/supabase'
+import { useApp } from '../context/AppContext'
 import { useEffect, useState } from 'react'
 
 export default function BottomNav() {
     const pathname = usePathname()
-    const [user, setUser] = useState(null)
-    const [loading, setLoading] = useState(true)
-
-    useEffect(() => {
-        const checkUser = async () => {
-            const { data: { session } } = await supabase.auth.getSession()
-            setUser(session?.user || null)
-            setLoading(false)
-        }
-        checkUser()
-
-        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-            setUser(session?.user || null)
-        })
-        return () => { authListener.subscription.unsubscribe() }
-    }, [])
+    const { user, loading } = useApp()
 
     if (loading || !user) return null
     if (pathname.startsWith('/auth/')) return null

@@ -1,0 +1,300 @@
+[
+  {
+    "id": "Dumbbell_Scaption",
+    "name": "Dumbbell Scaption",
+    "instructions": [
+      "This corrective exercise strengthens the muscles that stabilize your shoulder blade. Hold a light weight in each hand, hanging at your sides. Your thumbs should pointing up.",
+      "Begin the movement raising your arms out in front of you, about 30 degrees off center. Your arms should be fully extended as you perform the movement.",
+      "Continue until your arms are parallel to the ground, and then return to the starting position."
+    ]
+  },
+  {
+    "id": "Dumbbell_Seated_Box_Jump",
+    "name": "Dumbbell Seated Box Jump",
+    "instructions": [
+      "Position a box a couple feet to the side of a bench. Hold a dumbbell to your chest with both hands and seat yourself on the bench facing the box. This will be your starting position.",
+      "Plant your feet firmly on the ground as you lean forward, extending through the hips and knees to jump up and forward.",
+      "Land on the box with both feet, absorbing the impact by allowing the hips and knees to bend.",
+      "Step down and return to the starting position."
+    ]
+  },
+  {
+    "id": "Dumbbell_Seated_One-Leg_Calf_Raise",
+    "name": "Dumbbell Seated One-Leg Calf Raise",
+    "instructions": [
+      "Place a block on the floor about 12 inches from a flat bench.",
+      "Sit on a flat bench and place a dumbbell on your upper left thigh about 3 inches above your knee.",
+      "Now place the ball of your left foot on the block. This will be your starting position.",
+      "Raise your toes up as high as possible as you exhale and you contract your calf muscle. Hold the contraction for a second.",
+      "Slowly return to the starting position, stretching as far down as possible.",
+      "Repeat for your prescribed number of repetitions and then repeat with the right leg."
+    ]
+  },
+  {
+    "id": "Dumbbell_Shoulder_Press",
+    "name": "Dumbbell Shoulder Press",
+    "instructions": [
+      "While holding a dumbbell in each hand, sit on a military press bench or utility bench that has back support. Place the dumbbells upright on top of your thighs.",
+      "Now raise the dumbbells to shoulder height one at a time using your thighs to help propel them up into position.",
+      "Make sure to rotate your wrists so that the palms of your hands are facing forward. This is your starting position.",
+      "Now, exhale and push the dumbbells upward until they touch at the top.",
+      "Then, after a brief pause at the top contracted position, slowly lower the weights back down to the starting position while inhaling.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Dumbbell_Shrug",
+    "name": "Dumbbell Shrug",
+    "instructions": [
+      "Stand erect with a dumbbell on each hand (palms facing your torso), arms extended on the sides.",
+      "Lift the dumbbells by elevating the shoulders as high as possible while you exhale. Hold the contraction at the top for a second. Tip: The arms should remain extended at all times. Refrain from using the biceps to help lift the dumbbells. Only the shoulders should be moving up and down.",
+      "Lower the dumbbells back to the original position.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Dumbbell_Side_Bend",
+    "name": "Dumbbell Side Bend",
+    "instructions": [
+      "Stand up straight while holding a dumbbell on the left hand (palms facing the torso) as you have the right hand holding your waist. Your feet should be placed at shoulder width. This will be your starting position.",
+      "While keeping your back straight and your head up, bend only at the waist to the right as far as possible. Breathe in as you bend to the side. Then hold for a second and come back up to the starting position as you exhale. Tip: Keep the rest of the body stationary.",
+      "Now repeat the movement but bending to the left instead. Hold for a second and come back to the starting position.",
+      "Repeat for the recommended amount of repetitions and then change hands."
+    ]
+  },
+  {
+    "id": "Dumbbell_Squat",
+    "name": "Dumbbell Squat",
+    "instructions": [
+      "Stand up straight while holding a dumbbell on each hand (palms facing the side of your legs).",
+      "Position your legs using a shoulder width medium stance with the toes slightly pointed out. Keep your head up at all times as looking down will get you off balance and also maintain a straight back. This will be your starting position. Note: For the purposes of this discussion we will use the medium stance described above which targets overall development; however you can choose any of the three stances discussed in the foot stances section.",
+      "Begin to slowly lower your torso by bending the knees as you maintain a straight posture with the head up. Continue down until your thighs are parallel to the floor. Tip: If you performed the exercise correctly, the front of the knees should make an imaginary straight line with the toes that is perpendicular to the front. If your knees are past that imaginary line (if they are past your toes) then you are placing undue stress on the knee and the exercise has been performed incorrectly.",
+      "Begin to raise your torso as you exhale by pushing the floor with the heel of your foot mainly as you straighten the legs again and go back to the starting position.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Dumbbell_Squat_To_A_Bench",
+    "name": "Dumbbell Squat To A Bench",
+    "instructions": [
+      "Stand up straight with a flat bench behind you while holding a dumbbell on each hand (palms facing the side of your legs).",
+      "Position your legs using a shoulder width medium stance with the toes slightly pointed out. Keep your head up at all times as looking down will get you off balance and also maintain a straight back. This will be your starting position. Note: For the purposes of this discussion we will use the medium stance described above which targets overall development; however you can choose any of the three stances discussed in the foot stances section.",
+      "Begin to slowly lower your torso by bending the knees as you maintain a straight posture with the head up. Continue down until you slightly touch the bench behind you. Inhale as you perform this portion of the movement. Tip: If you performed the exercise correctly, the front of the knees should make an imaginary straight line with the toes that is perpendicular to the front. If your knees are past that imaginary line (if they are past your toes) then you are placing undue stress on the knee and the exercise has been performed incorrectly.",
+      "Begin to raise the bar as you exhale by pushing the floor with the heel of your foot mainly as you straighten the legs again and go back to the starting position.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Dumbbell_Step_Ups",
+    "name": "Dumbbell Step Ups",
+    "instructions": [
+      "Stand up straight while holding a dumbbell on each hand (palms facing the side of your legs).",
+      "Place the right foot on the elevated platform. Step on the platform by extending the hip and the knee of your right leg. Use the heel mainly to lift the rest of your body up and place the foot of the left leg on the platform as well. Breathe out as you execute the force required to come up.",
+      "Step down with the left leg by flexing the hip and knee of the right leg as you inhale. Return to the original standing position by placing the right foot of to next to the left foot on the initial position.",
+      "Repeat with the right leg for the recommended amount of repetitions and then perform with the left leg."
+    ]
+  },
+  {
+    "id": "Dumbbell_Tricep_Extension_-Pronated_Grip",
+    "name": "Dumbbell Tricep Extension -Pronated Grip",
+    "instructions": [
+      "Lie down on a flat bench holding two dumbbells directly above your shoulders. Your arms should be fully extended and form a 90 degree angle from your torso and the floor.",
+      "The palms of your hands should be facing forward, and your elbows should be tucked in. This will be your starting position.",
+      "Now, inhale and slowly lower the dumbbells until they are near your ears. Be sure to keep your upper arms stationary and your elbows tucked in.",
+      "Then, exhale and use your triceps to return the weight to the starting position."
+    ]
+  },
+  {
+    "id": "Dynamic_Back_Stretch",
+    "name": "Dynamic Back Stretch",
+    "instructions": [
+      "Stand with your feet shoulder width apart. This will be your starting position.",
+      "Keeping your arms straight, swing them straight up in front of you 5-10 times, increasing the range of motion each time until your arms are above your head."
+    ]
+  },
+  {
+    "id": "Dynamic_Chest_Stretch",
+    "name": "Dynamic Chest Stretch",
+    "instructions": [
+      "Stand with your hands together, arms extended directly in front of you. This will be your starting position.",
+      "Keeping your arms straight, quickly move your arms back as far as possible and back in again, similar to an exaggerated clapping motion. Repeat 5-10 times, increasing speed as you do so."
+    ]
+  },
+  {
+    "id": "EZ-Bar_Curl",
+    "name": "EZ-Bar Curl",
+    "instructions": [
+      "Stand up straight while holding an EZ curl bar at the wide outer handle. The palms of your hands should be facing forward and slightly tilted inward due to the shape of the bar. Keep your elbows close to your torso. This will be your starting position.",
+      "Now, while keeping your upper arms stationary, exhale and curl the weights forward while contracting the biceps. Focus on only moving your forearms.",
+      "Continue to raise the weight until your biceps are fully contracted and the bar is at shoulder level. Hold the top contracted position for a moment and squeeze the biceps.",
+      "Then inhale and slowly lower the bar back to the starting position.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "EZ-Bar_Skullcrusher",
+    "name": "EZ-Bar Skullcrusher",
+    "instructions": [
+      "Using a close grip, lift the EZ bar and hold it with your elbows in as you lie on the bench. Your arms should be perpendicular to the floor. This will be your starting position.",
+      "Keeping the upper arms stationary, lower the bar by allowing the elbows to flex. Inhale as you perform this portion of the movement. Pause once the bar is directly above the forehead.",
+      "Lift the bar back to the starting position by extending the elbow and exhaling.",
+      "Repeat."
+    ]
+  },
+  {
+    "id": "Elbow_Circles",
+    "name": "Elbow Circles",
+    "instructions": [
+      "Sit or stand with your feet slightly apart.",
+      "Place your hands on your shoulders with your elbows at shoulder level and pointing out.",
+      "Slowly make a circle with your elbows. Breathe out as you start the circle and breathe in as you complete the circle."
+    ]
+  },
+  {
+    "id": "Elbow_to_Knee",
+    "name": "Elbow to Knee",
+    "instructions": [
+      "Lie on the floor, crossing your right leg across your bent left knee. Clasp your hands behind your head, beginning with your shoulder blades on the ground. This will be your starting position.",
+      "Perform the motion by flexing the spine and rotating your torso to bring the left elbow to the right knee.",
+      "Return to the starting position and repeat the movement for the desired number of repetitions before switching sides."
+    ]
+  },
+  {
+    "id": "Elbows_Back",
+    "name": "Elbows Back",
+    "instructions": [
+      "Stand up straight.",
+      "Place both hands on your lower back, fingers pointing downward and elbows out.",
+      "Then gently pull your elbows back aiming to touch them together."
+    ]
+  },
+  {
+    "id": "Elevated_Back_Lunge",
+    "name": "Elevated Back Lunge",
+    "instructions": [
+      "Position a bar onto a rack at shoulder height loaded to an appropriate weight. Place a short, raised platform behind you.",
+      "Rack the bar onto your upper back, keeping your back arched and tight. Step onto your raised platform with both feet. This will be your starting position.",
+      "Begin by stepping backwards with one leg. Descend by flexing your hips and knees until your knee touches the floor.",
+      "Pause, and extend through the hips and knees to rise up, returning all the way to the starting position before alternating."
+    ]
+  },
+  {
+    "id": "Elevated_Cable_Rows",
+    "name": "Elevated Cable Rows",
+    "instructions": [
+      "Get a platform of some sort (it can be an aerobics or calf raise platform) that is around 4-6 inches in height.",
+      "Place it on the seat of the cable row machine.",
+      "Sit down on the machine and place your feet on the front platform or crossbar provided making sure that your knees are slightly bent and not locked.",
+      "Lean over as you keep the natural alignment of your back and grab the V-bar handles.",
+      "With your arms extended pull back until your torso is at a 90-degree angle from your legs. Your back should be slightly arched and your chest should be sticking out. You should be feeling a nice stretch on your lats as you hold the bar in front of you. This is the starting position of the exercise.",
+      "Keeping the torso stationary, pull the handles back towards your torso while keeping the arms close to it until you touch the abdominals. Breathe out as you perform that movement. At that point you should be squeezing your back muscles hard. Hold that contraction for a second and slowly go back to the original position while breathing in.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Elliptical_Trainer",
+    "name": "Elliptical Trainer",
+    "instructions": [
+      "To begin, step onto the elliptical and select the desired option from the menu. Most ellipticals have a manual setting, or you can select a program to run. Typically, you can enter your age and weight to estimate the amount of calories burned during exercise. Elevation can be adjusted to change the intensity of the workout.",
+      "The handles can be used to monitor your heart rate to help you stay at an appropriate intensity."
+    ]
+  },
+  {
+    "id": "Exercise_Ball_Crunch",
+    "name": "Exercise Ball Crunch",
+    "instructions": [
+      "Lie on an exercise ball with your lower back curvature pressed against the spherical surface of the ball. Your feet should be bent at the knee and pressed firmly against the floor. The upper torso should be hanging off the top of the ball. The arms should either be kept alongside the body or crossed on top of your chest as these positions avoid neck strains (as opposed to the hands behind the back of the head position).",
+      "Lower your torso into a stretch position keeping the neck stationary at all times. This will be your starting position.",
+      "With the hips stationary, flex the waist by contracting the abdominals and curl the shoulders and trunk upward until you feel a nice contraction on your abdominals. The arms should simply slide up the side of your legs if you have them at the side or just stay on top of your chest if you have them crossed. The lower back should always stay in contact with the ball. Exhale as you perform this movement and hold the contraction for a second.",
+      "As you inhale, go back to the starting position.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Exercise_Ball_Pull-In",
+    "name": "Exercise Ball Pull-In",
+    "instructions": [
+      "Place an exercise ball nearby and lay on the floor in front of it with your hands on the floor shoulder width apart in a push-up position.",
+      "Now place your lower shins on top of an exercise ball. Tip: At this point your legs should be fully extended with the shins on top of the ball and the upper body should be in a push-up type of position being supported by your two extended arms in front of you. This will be your starting position.",
+      "While keeping your back completely straight and the upper body stationary, pull your knees in towards your chest as you exhale, allowing the ball to roll forward under your ankles. Squeeze your abs and hold that position for a second.",
+      "Now slowly straighten your legs, rolling the ball back to the starting position as you inhale.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Extended_Range_One-Arm_Kettlebell_Floor_Press",
+    "name": "Extended Range One-Arm Kettlebell Floor Press",
+    "instructions": [
+      "Lie on the floor and position a kettlebell for one arm to press. The kettlebell should be held by the handle. The leg on the same side that you are pressing should be bent, with the knee crossing over the midline of the body.",
+      "Press the kettlebell by extending the elbow and adducting the arm, pressing it above your body. Return to the starting position."
+    ]
+  },
+  {
+    "id": "External_Rotation",
+    "name": "External Rotation",
+    "instructions": [
+      "Lie sideways on a flat bench with one arm holding a dumbbell and the other hand on top of the bench folded so that you can rest your head on it.",
+      "Bend the elbows of the arm holding the dumbbell so that it creates a 90-degree angle between the upper arm and the forearm. Tip: Keep the arm parallel to your torso.",
+      "Now bend the elbow while keeping the upper arm stationary. In this manner, the forearm will be parallel to the floor and perpendicular to your torso (Tip: So the forearm will be directly in front of you). The upper arm will be stationary by your torso and should be parallel to the floor (aligned with your torso at all times). This will be your starting position.",
+      "As you breathe out, externally rotate your forearm so that the dumbbell is lifted up in a semicircle motion as you maintain the 90 degree angle bend between the upper arms and the forearm. You will continue this external rotation until the forearm is perpendicular to the floor and the torso pointing towards the ceiling. At this point you will hold the contraction for a second.",
+      "As you breathe in, slowly go back to the starting position.",
+      "Repeat for the recommended amount of repetitions and then switch to the other arm."
+    ]
+  },
+  {
+    "id": "External_Rotation_with_Band",
+    "name": "External Rotation with Band",
+    "instructions": [
+      "Choke the band around a post. The band should be at the same height as your elbow. Stand with your left side to the band a couple of feet away.",
+      "Grasp the end of the band with your right hand, and keep your elbow pressed firmly to your side. We recommend you hold a pad or foam roll in place with your elbow to keep it firmly in position.",
+      "With your upper arm in position, your elbow should be flexed to 90 degrees with your hand reaching across the front of your torso. This will be your starting position.",
+      "Execute the movement by rotating your arm in a backhand motion, keeping your elbow in place.",
+      "Continue as far as you are able, pause, and then return to the starting position."
+    ]
+  },
+  {
+    "id": "External_Rotation_with_Cable",
+    "name": "External Rotation with Cable",
+    "instructions": [
+      "Adjust the cable to the same height as your elbow. Stand with your left side to the band a couple of feet away.",
+      "Grasp the handle with your right hand, and keep your elbow pressed firmly to your side. We recommend you hold a pad or foam roll in place with your elbow to keep it firmly in position.",
+      "With your upper arm in position, your elbow should be flexed to 90 degrees with your hand reaching across the front of your torso. This will be your starting position.",
+      "Execute the movement by rotating your arm in a backhand motion, keeping your elbow in place."
+    ]
+  },
+  {
+    "id": "Face_Pull",
+    "name": "Face Pull",
+    "instructions": [
+      "Facing a high pulley with a rope or dual handles attached, pull the weight directly towards your face, separating your hands as you do so. Keep your upper arms parallel to the ground."
+    ]
+  },
+  {
+    "id": "Farmers_Walk",
+    "name": "Farmer's Walk",
+    "instructions": [
+      "There are various implements that can be used for the farmers walk. These can also be performed with heavy dumbbells or short bars if these implements aren't available. Begin by standing between the implements.",
+      "After gripping the handles, lift them up by driving through your heels, keeping your back straight and your head up.",
+      "Walk taking short, quick steps, and don't forget to breathe. Move for a given distance, typically 50-100 feet, as fast as possible."
+    ]
+  },
+  {
+    "id": "Fast_Skipping",
+    "name": "Fast Skipping",
+    "instructions": [
+      "Start in a relaxed position with one leg slightly forward. This will be your starting position.",
+      "Skip by executing a step-hop pattern of right-right-step to left-left-step, and so on, alternating back and forth.",
+      "Perform fast skips by maintaining close contact with the ground and reduce air time, moving as quickly as possible."
+    ]
+  },
+  {
+    "id": "Finger_Curls",
+    "name": "Finger Curls",
+    "instructions": [
+      "Hold a barbell with both hands and your palms facing up; hands spaced about shoulder width.",
+      "Place your feet flat on the floor, at a distance that is slightly wider than shoulder width apart. This will be your starting position.",
+      "Lower the bar as far as possible by extending the fingers. Allowing the bar to roll down the hands, catch the bar with the final joint in the fingers.",
+      "Now curl bar up as high as possible by closing your hands while exhaling. Hold the contraction at the top."
+    ]
+  }
+]

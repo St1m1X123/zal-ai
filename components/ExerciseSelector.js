@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+
 
 const typeLabels = { weight_reps: 'Вага', time: 'Час', bodyweight: 'Власна вага' }
 
-const CATEGORIES = ['Усі', 'Груди', 'Спина', 'Ноги', 'Плечі', 'Руки', 'Прес', 'Кардіо', 'Інше']
+const CATEGORIES = ['Усі', 'Груди', 'Спина', 'Ноги', 'Плечі', 'Руки', 'Прес', 'Кардіо', 'Розтяжка', 'Інше']
 
 export default function ExerciseSelector({
     // Режим 1: create-workout (controlled)
@@ -118,26 +120,40 @@ export default function ExerciseSelector({
                     ) : filteredExercises.length > 0 ? (
                         <>
                             {filteredExercises.map(dbEx => (
-                                <button
-                                    key={dbEx.id}
-                                    onClick={() => onSelect(dbEx)}
-                                    className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:border-[#A3E635]/25 hover:bg-white/[0.05] active:scale-[0.98] transition-all text-left group"
-                                >
-                                    <div>
-                                        <p className="text-white/85 font-medium text-sm group-hover:text-white transition-colors">
-                                            {dbEx.name}
-                                        </p>
-                                        <p className="text-[9px] font-bold text-white/25 uppercase tracking-wider mt-0.5">
-                                            {typeLabels[dbEx.type] || dbEx.type}
-                                        </p>
-                                    </div>
-                                    {dbEx.muscle && (
-                                        <span className="text-[9px] font-bold text-[#A3E635]/40 uppercase tracking-wider border border-[#A3E635]/15 px-2 py-1 rounded-lg shrink-0 ml-3 group-hover:border-[#A3E635]/30 group-hover:text-[#A3E635]/70 transition-all">
-                                            {dbEx.muscle}
-                                        </span>
-                                    )}
-                                </button>
+                                <div key={dbEx.id} className="flex items-stretch gap-2">
+                                    {/* Select button */}
+                                    <button
+                                        onClick={() => onSelect(dbEx)}
+                                        className="flex-1 flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:border-[#A3E635]/25 hover:bg-white/[0.05] active:scale-[0.98] transition-all text-left group"
+                                    >
+                                        <div>
+                                            <p className="text-white/85 font-medium text-sm group-hover:text-white transition-colors">
+                                                {dbEx.name}
+                                            </p>
+                                            <p className="text-[9px] font-bold text-white/25 uppercase tracking-wider mt-0.5">
+                                                {typeLabels[dbEx.type] || dbEx.type}
+                                            </p>
+                                        </div>
+                                        {dbEx.muscle && (
+                                            <span className="text-[9px] font-bold text-[#A3E635]/40 uppercase tracking-wider border border-[#A3E635]/15 px-2 py-1 rounded-lg shrink-0 ml-3 group-hover:border-[#A3E635]/30 group-hover:text-[#A3E635]/70 transition-all">
+                                                {dbEx.muscle}
+                                            </span>
+                                        )}
+                                    </button>
+                                    {/* Info link — opens exercise detail page */}
+                                    <Link
+                                        href={`/exercises/${dbEx.id}`}
+                                        className="flex items-center justify-center w-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:border-[#22D3EE]/30 hover:bg-[rgba(34,211,238,0.05)] active:scale-[0.95] transition-all shrink-0"
+                                        title="Детальніше про вправу"
+                                        onClick={e => e.stopPropagation()}
+                                    >
+                                        <svg className="w-4 h-4 text-white/25 hover:text-[#22D3EE] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                                            <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
+                                        </svg>
+                                    </Link>
+                                </div>
                             ))}
+
 
                             {/* Кнопка створення власної */}
                             {canCreate && (

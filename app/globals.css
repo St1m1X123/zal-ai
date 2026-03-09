@@ -208,3 +208,12 @@ input[type="number"] {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(163, 230, 53, 0.4);
 }
+
+/* Приховати скролбар (для горизонтальних списків) */
+@utility hide-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
