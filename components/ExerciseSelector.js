@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 
@@ -23,6 +23,8 @@ export default function ExerciseSelector({
     isExactMatch: externalExactMatch,
     handleCreateCustomExercise,
     isCreatingCustom,
+    user, // Передаємо юзера, щоб знати, чи можна видаляти
+    handleDeleteCustomExercise, // Функція видалення
 }) {
     // Внутрішній стан для режиму workout (без controlled props)
     const [internalSearch, setInternalSearch] = useState('')
@@ -140,17 +142,37 @@ export default function ExerciseSelector({
                                             </span>
                                         )}
                                     </button>
-                                    {/* Info link — opens exercise detail page */}
-                                    <Link
-                                        href={`/exercises/${dbEx.id}`}
-                                        className="flex items-center justify-center w-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:border-[#22D3EE]/30 hover:bg-[rgba(34,211,238,0.05)] active:scale-[0.95] transition-all shrink-0"
-                                        title="Детальніше про вправу"
-                                        onClick={e => e.stopPropagation()}
-                                    >
-                                        <svg className="w-4 h-4 text-white/25 hover:text-[#22D3EE] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                                            <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
-                                        </svg>
-                                    </Link>
+
+                                    {/* Delete or Info link */}
+                                    <div className="flex items-stretch gap-1.5 shrink-0">
+                                        <Link
+                                            href={`/exercises/${dbEx.id}`}
+                                            className="flex items-center justify-center w-10 sm:w-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:border-[#22D3EE]/30 hover:bg-[rgba(34,211,238,0.05)] active:scale-[0.95] transition-all"
+                                            title="Детальніше про вправу"
+                                            onClick={e => e.stopPropagation()}
+                                        >
+                                            <svg className="w-4 h-4 text-white/25 hover:text-[#22D3EE] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                                                <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
+                                            </svg>
+                                        </Link>
+                                        
+                                        {dbEx.created_by && user && dbEx.created_by === user.id && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (window.confirm(`Ви впевнені, що хочете видалити власну вправу "${dbEx.name}"?`)) {
+                                                        handleDeleteCustomExercise && handleDeleteCustomExercise(dbEx.id);
+                                                    }
+                                                }}
+                                                className="flex items-center justify-center w-10 md:w-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400 active:scale-[0.95] transition-all text-white/20"
+                                                title="Видалити власну вправу"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
 

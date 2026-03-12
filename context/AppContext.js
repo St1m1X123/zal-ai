@@ -9,14 +9,16 @@ export function AppProvider({ children }) {
     const [user, setUser] = useState(null)
     const [profile, setProfile] = useState(null)
     const [loading, setLoading] = useState(true)
-    const [popularExercises, setPopularExercises] = useState([])
+    const [storedExercises, setStoredExercises] = useState([])
     const [templates, setTemplates] = useState([])
+    const [programs, setPrograms] = useState([])
     const [recentWorkouts, setRecentWorkouts] = useState([])
     const [activityDays, setActivityDays] = useState(new Set())
     const [activityMap, setActivityMap] = useState({})
     const [stats, setStats] = useState({ total: 0, thisMonth: 0, totalSets: 0, streak: 0 })
     const [prs, setPRs] = useState([])
     const [streakWeeks, setStreakWeeks] = useState(0)
+    const [activeWorkoutsCache, setActiveWorkoutsCache] = useState({})
 
     const hasFetched = useRef(false)
 
@@ -50,19 +52,35 @@ export function AppProvider({ children }) {
                     { data: exData },
                     { data: profData },
                     { data: templData },
+                    { data: progData },
                     { data: historyData },
                     { data: actData }
                 ] = await Promise.all([
-                    supabase.from('exercises').select('id, name, muscle').order('name', { ascending: true }),
+                    supabase.from('exercises').select('*').order('name', { ascending: true }),
                     supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
-                    supabase.from('workouts').select('*').eq('is_template', true).eq('user_id', user.id).order('created_at', { ascending: false }).limit(3),
+                    supabase.from('workouts')
+                        .select(`*, workout_exercises(*, exercises(name, type), sets(*))`)
+                        .eq('is_template', true)
+                        .eq('user_id', user.id)
+                        .order('created_at', { ascending: false }),
+                    supabase.from('programs')
+                        .select('*, workouts(*, workout_exercises(id, exercises(name)))')
+                        .eq('user_id', user.id)
+                        .order('created_at', { ascending: false }),
                     supabase.from('workouts').select('*').eq('is_template', false).eq('status', 'completed').eq('user_id', user.id).order('date', { ascending: false }).limit(3),
                     supabase.from('workouts').select('date').eq('is_template', false).eq('status', 'completed').eq('user_id', user.id).gte('date', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
                 ])
 
-                setPopularExercises(exData || [])
+                setStoredExercises(exData || [])
                 setProfile(profData)
                 setTemplates(templData || [])
+                
+                let loadedPrograms = progData || []
+                loadedPrograms.forEach(p => {
+                    p.workouts?.sort((a, b) => a.id.localeCompare(b.id))
+                })
+                setPrograms(loadedPrograms)
+
                 setRecentWorkouts(historyData || [])
                 setActivityDays(new Set(actData?.map(w => w.date) || []))
 
@@ -161,14 +179,19 @@ export function AppProvider({ children }) {
         user,
         profile,
         loading,
-        popularExercises,
+        storedExercises,
+        setStoredExercises,
         templates,
+        programs,
+        setPrograms,
         recentWorkouts,
         activityDays,
         activityMap,
         stats,
         prs,
         streakWeeks,
+        activeWorkoutsCache,
+        setActiveWorkoutsCache,
         setProfile,
         setRecentWorkouts,
         setActivityDays,

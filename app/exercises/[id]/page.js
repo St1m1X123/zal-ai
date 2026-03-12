@@ -5,24 +5,39 @@ import { supabase } from '../../../lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
+import { useApp } from '../../../context/AppContext'
+
 export default function ExerciseDetailPage({ params }) {
     const { id } = use(params)
     const router = useRouter()
-    const [exercise, setExercise] = useState(null)
+    const { storedExercises } = useApp()
+    
+    // Миттєвий пошук в кеші
+    const cachedExercise = storedExercises?.find(ex => ex.id === id) || null
+    
+    const [exercise, setExercise] = useState(cachedExercise)
     const [history, setHistory] = useState([])
-    const [loading, setLoading] = useState(true)
+    const [loadingHistory, setLoadingHistory] = useState(true)
 
     useEffect(() => {
         async function fetchData() {
-            // 1. Fetch exercise details
-            const { data: exData } = await supabase
-                .from('exercises')
-                .select('*')
-                .eq('id', id)
-                .single()
+            let currentEx = cachedExercise
 
-            if (exData) {
-                setExercise(exData)
+            // Якщо немає в кеші (наприклад прямий лінк), вантажимо з БД
+            if (!currentEx) {
+                const { data: exData } = await supabase
+                    .from('exercises')
+                    .select('*')
+                    .eq('id', id)
+                    .single()
+                
+                if (exData) {
+                    setExercise(exData)
+                    currentEx = exData
+                }
+            }
+
+            if (currentEx) {
 
                 // 2. Fetch user's history for this exercise
                 const { data: { user } } = await supabase.auth.getUser()
@@ -72,12 +87,12 @@ export default function ExerciseDetailPage({ params }) {
                     }
                 }
             }
-            setLoading(false)
+            setLoadingHistory(false)
         }
         fetchData()
-    }, [id, supabase])
+    }, [id, supabase, cachedExercise])
 
-    if (loading) {
+    if (!exercise && loadingHistory) {
         return (
             <div className="min-h-screen bg-[#080b10] flex items-center justify-center">
                 <div className="w-8 h-8 border-2 border-[#A3E635]/20 border-t-[#A3E635] rounded-full animate-spin" />
@@ -136,8 +151,26 @@ export default function ExerciseDetailPage({ params }) {
                     </h2>
                 </section>
 
+                {/* GIF / Фото вправи */}
+                {exercise.gif_url && (
+                    <section className="rounded-3xl overflow-hidden border border-white/[0.06] bg-white/[0.02]">
+                        <img
+                            src={exercise.gif_url}
+                            alt={exercise.name}
+                            className="w-full object-cover"
+                            loading="lazy"
+                            style={{ maxHeight: '300px', objectFit: 'contain', background: 'rgba(255,255,255,0.02)' }}
+                        />
+                    </section>
+                )}
+
                 {/* Прогрес (Графік) */}
-                {history.length > 0 && (
+                {loadingHistory ? (
+                   <div className="neural-card rounded-3xl p-6 flex flex-col items-center justify-center h-48 opacity-50">
+                       <div className="w-6 h-6 border-2 border-[#A3E635]/20 border-t-[#A3E635] rounded-full animate-spin mb-3" />
+                       <span className="text-[10px] text-white/40 uppercase tracking-widest">Завантаження історії...</span>
+                   </div>
+                ) : history.length > 0 && (
                     <section className="neural-card rounded-3xl p-6 flex flex-col gap-6">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-bold text-white/80 flex items-center gap-2">
@@ -203,7 +236,7 @@ export default function ExerciseDetailPage({ params }) {
                 )}
 
                 {/* Світла порожнеча якщо немає історії */}
-                {history.length === 0 && (
+                {!loadingHistory && history.length === 0 && (
                     <div className="neural-card rounded-3xl p-8 text-center flex flex-col items-center gap-4 opacity-50">
                         <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
                             <svg className="w-6 h-6 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">

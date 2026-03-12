@@ -5,36 +5,111 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import ExerciseSelector from '../../components/ExerciseSelector'
 import ExerciseBlock from '../../components/ExerciseBlock'
+import { useApp } from '../../context/AppContext'
 
 export default function CreateWorkoutPage() {
   const router = useRouter()
-  const [workoutName, setWorkoutName] = useState('')
+  const { user, storedExercises, setStoredExercises, setTemplates } = useApp()
+  const [workoutName, setWorkoutName] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('zalai_create_workout_name')
+      return saved || ''
+    }
+    return ''
+  })
   const [isSaving, setIsSaving] = useState(false)
   const [dbExercises, setDbExercises] = useState([])
   const [isLoadingExercises, setIsLoadingExercises] = useState(true)
 
   useEffect(() => {
-    const fetchExercises = async () => {
-      setIsLoadingExercises(true)
-      const { data, error } = await supabase.from('exercises').select('*').order('name', { ascending: true })
-      if (data) setDbExercises(data)
-      else console.error('Помилка завантаження вправ:', error)
+    if (storedExercises?.length > 0) {
+      setDbExercises(storedExercises)
       setIsLoadingExercises(false)
+    } else {
+      // Фолбек якщо з якоїсь причини контекст ще пустий
+      const fetchExercises = async () => {
+        setIsLoadingExercises(true)
+        const { data, error } = await supabase.from('exercises').select('*').order('name', { ascending: true })
+        if (data) {
+          setDbExercises(data)
+          setStoredExercises(data)
+        }
+        else console.error('Помилка завантаження вправ:', error)
+        setIsLoadingExercises(false)
+      }
+      fetchExercises()
     }
-    fetchExercises()
-  }, [])
+  }, [storedExercises, setStoredExercises])
 
   const categories = ['Усі', 'Груди', 'Спина', 'Ноги', 'Плечі', 'Руки', 'Прес', 'Кардіо', 'Розтяжка', 'Інше']
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [activeExerciseId, setActiveExerciseId] = useState(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [activeCategory, setActiveCategory] = useState('Усі')
+  const [isModalOpen, setIsModalOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('zalai_create_workout_modal_open') === 'true'
+    }
+    return false
+  })
+  const [activeExerciseId, setActiveExerciseId] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('zalai_create_workout_active_id')
+      return saved ? Number(saved) : null
+    }
+    return null
+  })
+  const [searchQuery, setSearchQuery] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('zalai_create_workout_search') || ''
+    }
+    return ''
+  })
+  const [activeCategory, setActiveCategory] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('zalai_create_workout_category') || 'Усі'
+    }
+    return 'Усі'
+  })
   const [isCreatingCustom, setIsCreatingCustom] = useState(false)
 
-  const [exercises, setExercises] = useState([{
-    id: Date.now(), exercise_id: null, name: '', note: '', type: 'weight_reps', superset_id: null,
-    sets: [{ id: Date.now() + 1, weight: '', reps: '', time_minutes: '', time_seconds: '', set_type: 'normal', note: '' }]
-  }])
+  const [exercises, setExercises] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('zalai_create_workout_exercises')
+      if (saved) {
+        try {
+          return JSON.parse(saved)
+        } catch(e) { console.error('Error parsing saved create workout exercises') }
+      }
+    }
+    return [{
+      id: Date.now(), exercise_id: null, name: '', note: '', type: 'weight_reps', superset_id: null,
+      sets: [{ id: Date.now() + 1, weight: '', reps: '', time_minutes: '', time_seconds: '', set_type: 'normal', note: '' }]
+    }]
+  })
+
+  // --- Збереження стану в sessionStorage ---
+  useEffect(() => {
+    sessionStorage.setItem('zalai_create_workout_name', workoutName)
+  }, [workoutName])
+
+  useEffect(() => {
+    sessionStorage.setItem('zalai_create_workout_exercises', JSON.stringify(exercises))
+  }, [exercises])
+
+  useEffect(() => {
+    sessionStorage.setItem('zalai_create_workout_modal_open', isModalOpen)
+    if (activeExerciseId) sessionStorage.setItem('zalai_create_workout_active_id', activeExerciseId)
+    else sessionStorage.removeItem('zalai_create_workout_active_id')
+    sessionStorage.setItem('zalai_create_workout_search', searchQuery)
+    sessionStorage.setItem('zalai_create_workout_category', activeCategory)
+  }, [isModalOpen, activeExerciseId, searchQuery, activeCategory])
+
+  // Очищення sessionStorage при успішному збереженні
+  const clearSessionStorage = () => {
+    sessionStorage.removeItem('zalai_create_workout_name')
+    sessionStorage.removeItem('zalai_create_workout_exercises')
+    sessionStorage.removeItem('zalai_create_workout_modal_open')
+    sessionStorage.removeItem('zalai_create_workout_active_id')
+    sessionStorage.removeItem('zalai_create_workout_search')
+    sessionStorage.removeItem('zalai_create_workout_category')
+  }
 
   const groupedBlocks = useCallback(() => {
     const blocks = []
@@ -53,7 +128,12 @@ export default function CreateWorkoutPage() {
     return blocks
   }, [exercises])
 
-  const handleOpenModal = (id) => { setActiveExerciseId(id); setSearchQuery(''); setActiveCategory('Усі'); setIsModalOpen(true) }
+  const handleOpenModal = (id) => { 
+    setActiveExerciseId(id)
+    // Не скидаємо пошук при відкритті, щоб зберегти стан якщо юзер щойно повернувся або просто закрив-відкрив
+    // setSearchQuery('') ; setActiveCategory('Усі')
+    setIsModalOpen(true) 
+  }
   const handleSelectExercise = (dbEx) => {
     setExercises(exercises.map(ex => ex.id === activeExerciseId ? { ...ex, exercise_id: dbEx.id, name: dbEx.name, type: dbEx.type } : ex))
     setIsModalOpen(false)
@@ -63,11 +143,21 @@ export default function CreateWorkoutPage() {
     setIsCreatingCustom(true)
     const { data: { user } } = await supabase.auth.getUser()
     const { data, error } = await supabase.from('exercises')
-      .insert([{ name: searchQuery.trim(), type: 'weight_reps', muscle: activeCategory === 'Усі' ? 'Інше' : activeCategory, user_id: user?.id || null }])
+      .insert([{ name: searchQuery.trim(), type: 'weight_reps', muscle: activeCategory === 'Усі' ? 'Інше' : activeCategory, user_id: user?.id || null, created_by: user?.id || null }])
       .select().single()
     if (data) { setDbExercises(prev => [...prev, data]); handleSelectExercise(data) }
     else { console.error('Помилка:', error); alert('Не вдалося створити вправу.') }
     setIsCreatingCustom(false)
+  }
+
+  const handleDeleteCustomExercise = async (id) => {
+    const { error } = await supabase.from('exercises').delete().eq('id', id)
+    if (error) {
+      console.error('Помилка видалення:', error)
+      alert('Не вдалося видалити вправу. Можливо, вона вже використовується у ваших тренуваннях.')
+    } else {
+      setDbExercises(prev => prev.filter(ex => ex.id !== id))
+    }
   }
 
   const handleAddExercise = () => {
@@ -109,7 +199,25 @@ export default function CreateWorkoutPage() {
         const setsToInsert = ex.sets.map((set, si) => ({ workout_exercise_id: weData.id, order: si + 1, weight: Number(set.weight) || null, reps: Number(set.reps) || null, time_seconds: ((Number(set.time_minutes) || 0) * 60 + (Number(set.time_seconds) || 0)) || null, note: ex.note || null, is_completed: false }))
         if (setsToInsert.length > 0) { const { error: setsError } = await supabase.from('sets').insert(setsToInsert); if (setsError) throw setsError }
       }
-      router.push('/')
+      
+      // Після успішного збереження в базу, оновлюємо глобальний кеш
+      if (setTemplates) {
+        // Ми маємо збудувати об'єкт, схожий на той, що повертає supabase .select('*, workout_exercises(*, exercises(name, type))')
+        // Оскільки ми щойно створили його, можна зробити швидкий запит для отримання повної структури або просто перезавантажити сторінку
+        // Але краще зробити 1 запит, щоб отримати повну структуру для кешу
+        const { data: newTemplateData } = await supabase
+          .from('workouts')
+          .select('*, workout_exercises(id, exercises(name))')
+          .eq('id', workoutData.id)
+          .single()
+        
+        if (newTemplateData) {
+          setTemplates(prev => [newTemplateData, ...prev])
+        }
+      }
+
+      clearSessionStorage()
+      router.push('/programs')
     } catch (error) {
       console.error('Помилка збереження:', error.message || error)
       alert(`Помилка: ${error.message || 'невідома помилка'}`)
@@ -140,7 +248,7 @@ export default function CreateWorkoutPage() {
         </div>
       </header>
 
-      <div className="p-4 flex flex-col max-w-md mx-auto w-full gap-4 mt-2">
+      <div className="p-4 pb-28 flex flex-col max-w-md mx-auto w-full gap-4 mt-2">
         {groupedBlocks().map((block, blockIndex) => (
           <ExerciseBlock
             key={`block-${blockIndex}`}
@@ -204,6 +312,12 @@ export default function CreateWorkoutPage() {
         isExactMatch={isExactMatch}
         handleCreateCustomExercise={handleCreateCustomExercise}
         isCreatingCustom={isCreatingCustom}
+        user={user}
+        handleDeleteCustomExercise={handleDeleteCustomExercise}
+        onInfoClick={(exId) => {
+          // Стан вже автоматично зберігається в sessionStorage завдяки useEffect
+          router.push(`/exercises/${exId}`)
+        }}
       />
     </main>
   )

@@ -45,40 +45,6 @@ const IconLock = ({ className }) => (
     </svg>
 )
 
-// ─── HeatMap ─────────────────────────────────────────────────────────────────
-function HeatMap({ activityMap }) {
-    const weeks = 7
-    const days = []
-    const today = new Date()
-    for (let i = weeks * 7 - 1; i >= 0; i--) {
-        const d = new Date(today)
-        d.setDate(today.getDate() - i)
-        days.push(d.toISOString().split('T')[0])
-    }
-    const columns = []
-    for (let w = 0; w < weeks; w++) columns.push(days.slice(w * 7, w * 7 + 7))
-
-    return (
-        <div className="flex gap-1.5">
-            {columns.map((week, wi) => (
-                <div key={wi} className="flex flex-col gap-1.5">
-                    {week.map(date => {
-                        const count = activityMap[date] || 0
-                        return (
-                            <div
-                                key={date}
-                                title={date}
-                                className={`w-[calc((100vw-80px)/7-6px)] max-w-[36px] aspect-square rounded-[4px] transition-all ${count > 0 ? 'bg-[#A3E635] shadow-[0_0_8px_rgba(163,230,53,0.5)]' : 'bg-white/[0.05]'
-                                    }`}
-                            />
-                        )
-                    })}
-                </div>
-            ))}
-        </div>
-    )
-}
-
 // ─── WheelPicker (mini) ───────────────────────────────────────────────────────
 function WheelPicker({ values, value, onChange, unit = '' }) {
     const containerRef = useRef(null)
@@ -596,7 +562,9 @@ export default function ProfilePage() {
                         <div>
                             <div className="flex items-center justify-center gap-2 mb-2">
                                 <div className="ai-badge px-3 py-1">✦ AI АТЛЕТ</div>
-                                <div className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[8px] font-bold text-white/30 tracking-[0.2em]">LVL 12</div>
+                                <div className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[8px] font-bold text-white/30 tracking-[0.2em]">
+                                    LVL {1 + Math.floor((stats?.total || 0) / 3)}
+                                </div>
                             </div>
                             <h1 className="text-2xl font-black text-white tracking-tight">{fullName}</h1>
                             <p className="text-[11px] font-bold text-white/20 tracking-wider mt-1 uppercase">{user?.email}</p>
@@ -659,21 +627,6 @@ export default function ProfilePage() {
                                 <span className="text-[9px] font-bold text-white/25 uppercase tracking-wider leading-tight">{label}</span>
                             </div>
                         ))}
-                    </div>
-                </section>
-
-                {/* HEAT-MAP */}
-                <section>
-                    <div className="flex items-center justify-between mb-3 px-1">
-                        <h2 className="text-[11px] font-bold text-white/30 uppercase tracking-[0.25em]">Активність · 7 тижнів</h2>
-                        <div className="h-px flex-1 mx-3 bg-white/[0.05]" />
-                        <div className="flex items-center gap-1.5">
-                            <div className="w-2.5 h-2.5 rounded-sm bg-white/[0.05]" />
-                            <div className="w-2.5 h-2.5 rounded-sm bg-[#A3E635] shadow-[0_0_6px_rgba(163,230,53,0.5)]" />
-                        </div>
-                    </div>
-                    <div className="neural-card rounded-2xl p-4 overflow-x-auto">
-                        <HeatMap activityMap={activityMap} />
                     </div>
                 </section>
 

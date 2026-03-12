@@ -30,51 +30,14 @@ const IconChevronDown = ({ className, isOpen }) => (
 
 export default function ProgramsPage() {
     const router = useRouter()
-    const { user, loading: globalLoading } = useApp()
-    const [loading, setLoading] = useState(true)
-    const [programs, setPrograms] = useState([])
-    const [standaloneTemplates, setStandaloneTemplates] = useState([])
+    const { user, loading: globalLoading, programs: cachedPrograms, setPrograms, templates } = useApp()
+    
+    // We display templates that don't belong to any specific AI program
+    const standaloneTemplates = templates?.filter(t => t.program_id === null) || []
+    
     const [expandedProgram, setExpandedProgram] = useState(null)
-
     const [isCreating, setIsCreating] = useState(null)
     const [isDeletingId, setIsDeletingId] = useState(null)
-
-    useEffect(() => {
-        if (globalLoading || !user) return
-
-        const init = async () => {
-            setLoading(true)
-            // 1. Fetch AI Programs with their days
-            const { data: pData, error: pErr } = await supabase
-                .from('programs')
-                .select('*, workouts(*, workout_exercises(id, exercises(name)))')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false })
-
-            if (!pErr && pData) {
-                pData.forEach(p => {
-                    p.workouts.sort((a, b) => a.id.localeCompare(b.id))
-                })
-                setPrograms(pData)
-            }
-
-            // 2. Fetch loose templates
-            const { data: tData, error: tErr } = await supabase
-                .from('workouts')
-                .select('*, workout_exercises(id, exercises(name))')
-                .eq('is_template', true)
-                .is('program_id', null)
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false })
-
-            if (!tErr && tData) {
-                setStandaloneTemplates(tData)
-            }
-
-            setLoading(false)
-        }
-        init()
-    }, [user, globalLoading])
 
     const handleStartWorkout = async (templateId, templateName) => {
         setIsCreating(templateId)
@@ -100,7 +63,9 @@ export default function ProgramsPage() {
         try {
             const { error } = await supabase.from('programs').delete().eq('id', programId).eq('user_id', user.id)
             if (error) throw error
-            setPrograms(prev => prev.filter(p => p.id !== programId))
+            if (setPrograms) {
+                setPrograms(prev => prev.filter(p => p.id !== programId))
+            }
         } catch {
             alert('Помилка при видаленні.')
         } finally {
@@ -109,12 +74,14 @@ export default function ProgramsPage() {
     }
 
     const handleDeleteStandaloneTemplate = async (templateId, name) => {
-        if (!window.confirm(`Видалити шаблон "${name}"?`)) return
+        if (!window.confirm(`Видалити тренування "${name}"?`)) return
         setIsDeletingId(templateId)
         try {
             const { error } = await supabase.from('workouts').delete().eq('id', templateId).eq('user_id', user.id)
             if (error) throw error
-            setStandaloneTemplates(prev => prev.filter(t => t.id !== templateId))
+            if (setTemplates) {
+                setTemplates(prev => prev.filter(t => t.id !== templateId))
+            }
         } catch {
             alert('Помилка при видаленні.')
         } finally {
@@ -122,25 +89,29 @@ export default function ProgramsPage() {
         }
     }
 
-    if (globalLoading || (loading && programs.length === 0 && standaloneTemplates.length === 0)) {
+    if (globalLoading || !user) {
         return <ProgramsSkeleton />
     }
 
-    const hasContent = programs.length > 0 || standaloneTemplates.length > 0
+    const hasContent = cachedPrograms?.length > 0 || standaloneTemplates.length > 0
 
     return (
         <main className="min-h-screen text-white relative pb-32">
             {/* ХЕДЕР */}
             <header className="sticky top-0 z-20 px-4 pt-5 pb-4 bg-[#080b10] border-b border-white/[0.05]">
                 <div className="mx-auto w-full max-w-md">
-                    <div className="flex items-end justify-between">
+                    <div className="flex items-center justify-between">
                         <div>
                             <p className="text-[10px] font-bold text-[#22D3EE]/50 tracking-[0.2em] mb-1">AI Розклад</p>
                             <h1 className="text-2xl font-bold text-white tracking-tight">Мої Програми</h1>
                         </div>
-                        <div className="ai-badge">
-                            <span>❖</span> {programs.length + standaloneTemplates.length} записів
-                        </div>
+                        <button
+                            onClick={() => router.push('/create-workout')}
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#A3E635] text-[#080b10] font-black text-[11px] uppercase tracking-widest hover:bg-[#b8f053] active:scale-95 transition-all shadow-[0_0_20px_rgba(163,230,53,0.25)]"
+                        >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                            Тренування
+                        </button>
                     </div>
                 </div>
             </header>
@@ -168,10 +139,10 @@ export default function ProgramsPage() {
                 )}
 
                 {/* РОЗКЛАДИ (AI Програми) */}
-                {programs.length > 0 && (
+                {cachedPrograms?.length > 0 && (
                     <section className="flex flex-col gap-3">
                         <h2 className="text-[11px] font-bold text-[#22D3EE]/60 tracking-wider px-1">AI Плани на тиждень</h2>
-                        {programs.map(p => {
+                        {cachedPrograms.map(p => {
                             const isExpanded = expandedProgram === p.id
                             return (
                                 <div key={p.id} className="neural-card rounded-2xl overflow-hidden border border-[#22D3EE]/10" style={{ background: isExpanded ? 'rgba(34,211,238,0.02)' : '' }}>
@@ -253,14 +224,11 @@ export default function ProgramsPage() {
                     </section>
                 )}
 
-                {/* ОДИНОЧНІ ШАБЛОНИ */}
+                {/* МОЇ ТРЕНУВАННЯ */}
                 {standaloneTemplates.length > 0 && (
                     <section className="flex flex-col gap-3">
                         <div className="flex items-center justify-between mb-1 px-1 mt-2">
-                            <h2 className="text-[11px] font-bold text-white/30 tracking-wider">Меню Програм</h2>
-                            <Link href="/create-workout" className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
-                                <span className="text-white/50 text-lg leading-none mb-0.5">+</span>
-                            </Link>
+                            <h2 className="text-[11px] font-bold text-white/30 tracking-wider">Мої тренування</h2>
                         </div>
 
                         {standaloneTemplates.map(template => (
@@ -320,14 +288,7 @@ export default function ProgramsPage() {
                     </section>
                 )}
 
-                {/* Якщо немає поодиноких шаблонів, але є програми, показуємо кнопку додати шаблон */}
-                {programs.length > 0 && standaloneTemplates.length === 0 && (
-                    <div className="text-center mt-4">
-                        <Link href="/create-workout" className="text-[10px] font-bold tracking-wider text-white/20 hover:text-white/40 transition-colors">
-                            + Створити шаблон вручну
-                        </Link>
-                    </div>
-                )}
+
             </div>
         </main >
     )

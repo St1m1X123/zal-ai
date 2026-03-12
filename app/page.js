@@ -137,12 +137,14 @@ export default function Home() {
     user,
     profile,
     loading: globalLoading,
-    popularExercises,
+    storedExercises,
     templates,
     recentWorkouts,
     activityDays,
     streakWeeks,
-    setProfile
+    setActiveWorkoutsCache,
+    setProfile,
+    setPrograms
   } = useApp()
 
   const [exerciseSearch, setExerciseSearch] = useState('')
@@ -246,6 +248,13 @@ export default function Home() {
         .insert([{ name: 'Вільне тренування', is_template: false, user_id: user.id, status: 'in_progress', date: new Date().toISOString().split('T')[0] }])
         .select().single()
       if (error) throw error
+
+      // Зберігаємо в кеш для моментального відкриття
+      setActiveWorkoutsCache(prev => ({
+        ...prev,
+        [workoutData.id]: { workout: workoutData, exercises: [], sets: {} }
+      }))
+
       router.push(`/workout/${workoutData.id}`)
     } catch {
       alert('Помилка при створенні тренування.')
@@ -260,6 +269,11 @@ export default function Home() {
         p_template_id: template.id, p_user_id: user.id, p_workout_name: template.name
       })
       if (error) throw error
+
+      // При старті з шаблону нам ще не відомі згенеровані ID workout_exercises і sets,
+      // тому ми не можемо ідеально зібрати кеш тут.
+      // Але ми можемо принаймні заповнити назву (wData), хоча supabase 3-в-1 відпрацює дуже швидко.
+      
       router.push(`/workout/${newWorkoutId}`)
     } catch {
       alert('Не вдалося запустити тренування.')
@@ -290,6 +304,21 @@ export default function Home() {
       clearInterval(iv)
 
       if (!res.ok) throw new Error(data.error || 'Помилка AI')
+
+      // Оновлюємо глобальний кеш перед переходом
+      if (setPrograms) {
+        // Запитуємо згенеровану програму у тому ж форматі, що й у AppContext
+        const { data: generatedProgram } = await supabase
+          .from('programs')
+          .select('*, workouts(*, workout_exercises(id, exercises(name)))')
+          .eq('id', data.programId)
+          .single()
+
+        if (generatedProgram) {
+            generatedProgram.workouts?.sort((a, b) => a.id.localeCompare(b.id))
+            setPrograms(prev => [generatedProgram, ...prev])
+        }
+      }
 
       // Navigate to programs page to see the created plan
       router.push('/programs')
@@ -1050,13 +1079,13 @@ export default function Home() {
             </div>
 
             {/* Footer */}
-            <div className="mt-8 pt-6 pb-20 sm:pb-6 border-t border-white/5">
+            <div className="shrink-0 pt-5 pb-2 border-t border-white/[0.07] mt-4">
               {isExercisePickerOpen ? (
                 <button
                   onClick={() => setIsExercisePickerOpen(false)}
                   className="w-full py-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white font-black text-xs uppercase tracking-[0.2em] hover:bg-white/10 transition-all flex items-center justify-center gap-3"
                 >
-                  Готово
+                  ✓ Готово ({aiConfig.selected_exercises?.length || 0} вибрано)
                 </button>
               ) : (
                 <>
@@ -1066,15 +1095,15 @@ export default function Home() {
                       handleGenerateProgramAPI()
                     }}
                     disabled={isGenerating}
-                    className="w-full py-4 rounded-2xl bg-[#22D3EE] text-[#080b10] font-black text-xs uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(34,211,238,0.3)] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                    className="w-full py-5 rounded-2xl bg-[#22D3EE] text-[#080b10] font-black text-sm uppercase tracking-[0.15em] shadow-[0_0_40px_rgba(34,211,238,0.4),0_4px_20px_rgba(0,0,0,0.3)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-70"
                   >
                     {isGenerating ? (
-                      <div className="w-4 h-4 border-2 border-[#080b10] border-t-transparent rounded-full animate-spin" />
+                      <div className="w-5 h-5 border-2 border-[#080b10] border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <><span>Згенерувати Neural Plan</span> <IconSparkles className="w-4 h-4" /></>
+                      <><span>Згенерувати Neural Plan</span> <IconSparkles className="w-5 h-5" /></>
                     )}
                   </button>
-                  <p className="text-center text-[9px] text-white/20 mt-4 uppercase tracking-tighter">Всі параметри буде передано в Neural Engine</p>
+                  <p className="text-center text-[9px] text-white/20 mt-3 uppercase tracking-tighter">Всі параметри буде передано в Neural Engine</p>
                 </>
               )}
             </div>

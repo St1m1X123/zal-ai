@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 export default function ExerciseBlock({
     block, blockIndex,
     handleOpenModal, handleRemoveExercise, handleUpdateExercise,
@@ -32,7 +34,7 @@ export default function ExerciseBlock({
                         <div className="flex items-center gap-2 mb-3">
                             <button
                                 onClick={() => handleOpenModal(ex.id)}
-                                className={`flex-1 text-left font-semibold pb-1.5 border-b transition-all truncate ${ex.name
+                                className={`flex-1 text-left font-semibold pb-1.5 border-b transition-all ${ex.name
                                     ? 'text-white/90 border-transparent text-base'
                                     : 'text-white/25 border-white/[0.08] hover:border-[#A3E635]/30 text-sm'
                                     }`}
@@ -46,8 +48,21 @@ export default function ExerciseBlock({
                                     </span>
                                 )}
                             </button>
+                            
+                            {ex.exercise_id && (
+                                <Link
+                                    href={`/exercises/${ex.exercise_id}`}
+                                    className="w-8 h-8 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-white/40 hover:text-[#22D3EE] hover:border-[#22D3EE]/30 transition-all shrink-0"
+                                    title="Детальніше про вправу"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
+                                    </svg>
+                                </Link>
+                            )}
                             <button
-                                onClick={() => { if (window.confirm('Видалити вправу?')) handleRemoveExercise(ex.id) }}
+                                onClick={() => handleRemoveExercise(ex.id)}
                                 className="w-8 h-8 rounded-lg flex items-center justify-center text-white/15 hover:text-red-400 hover:bg-red-500/10 transition-all shrink-0"
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -140,7 +155,7 @@ export default function ExerciseBlock({
                                                 <input type="number" inputMode="numeric" placeholder="0" value={set.reps}
                                                     onChange={(e) => handleUpdateSet(ex.id, set.id, 'reps', e.target.value)}
                                                     className="w-full bg-transparent text-center text-xl font-mono font-bold text-white outline-none placeholder:text-white/10" />
-                                                <span className="text-[8px] font-bold text-white/30 uppercase tracking-wider mt-0.5">рп</span>
+                                                <span className="text-[8px] font-bold text-white/30 uppercase tracking-wider mt-0.5">раз</span>
                                             </div>
                                         </>
                                     )}

@@ -5,6 +5,7 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ExerciseSelector from '../../../components/ExerciseSelector'
+import { useApp } from '../../../context/AppContext'
 
 const IconCheck = ({ className }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -36,6 +37,15 @@ export default function WorkoutPage() {
   const params = useParams()
   const router = useRouter()
   const workoutId = params?.id
+  const { 
+    storedExercises, 
+    setStoredExercises, 
+    activeWorkoutsCache, 
+    setActiveWorkoutsCache,
+    setRecentWorkouts,
+    setActivityDays,
+    setStats 
+  } = useApp()
 
   const [user, setUser] = useState(null)
   const [workout, setWorkout] = useState(null)
@@ -69,6 +79,14 @@ export default function WorkoutPage() {
   const [selectorCategory, setSelectorCategory] = useState('Усі')
   const [dbExercises, setDbExercises] = useState([])
   const [isLoadingDb, setIsLoadingDb] = useState(false)
+  const [isCreatingCustom, setIsCreatingCustom] = useState(false)
+
+  // Підтягуємо зі збереженого
+  useEffect(() => {
+    if (storedExercises?.length > 0) {
+      setDbExercises(storedExercises)
+    }
+  }, [storedExercises])
 
   const CATEGORIES = ['Усі', 'Груди', 'Спина', 'Ноги', 'Плечі', 'Руки', 'Прес', 'Кардіо', 'Розтяжка', 'Інше']
 
@@ -89,11 +107,19 @@ export default function WorkoutPage() {
   }
 
   const loadDbExercises = async () => {
-    if (dbExercises.length > 0) return
-    setIsLoadingDb(true)
-    const { data } = await supabase.from('exercises').select('*').order('name', { ascending: true })
-    setDbExercises(data || [])
-    setIsLoadingDb(false)
+    // В нас вже є дані з AppContext, нічого не вантажимо додатково, 
+    // хіба що список пустий
+    if (dbExercises.length === 0 && storedExercises.length === 0) {
+      setIsLoadingDb(true)
+      const { data } = await supabase.from('exercises').select('*').order('name', { ascending: true })
+      if(data) {
+          setDbExercises(data)
+          setStoredExercises(data)
+      }
+      setIsLoadingDb(false)
+    } else if (storedExercises.length > 0 && dbExercises.length === 0) {
+        setDbExercises(storedExercises)
+    }
   }
 
   const filteredForSelector = dbExercises.filter(ex => {
@@ -104,23 +130,65 @@ export default function WorkoutPage() {
 
   // Таймер сесії
   useEffect(() => {
-    sessionInterval.current = setInterval(() => setSessionTime(prev => prev + 1), 1000)
+    if (!workoutId) return
+    const startKey = `zalai_session_start_${workoutId}`
+    let startTime = localStorage.getItem(startKey)
+    if (!startTime) {
+      startTime = Date.now()
+      localStorage.setItem(startKey, startTime.toString())
+    } else {
+      startTime = parseInt(startTime, 10)
+    }
+
+    setSessionTime(Math.floor((Date.now() - startTime) / 1000))
+
+    sessionInterval.current = setInterval(() => {
+      setSessionTime(Math.floor((Date.now() - startTime) / 1000))
+    }, 1000)
+
     return () => clearInterval(sessionInterval.current)
-  }, [])
+  }, [workoutId])
+
+  // Ініціалізація таймера відпочинку при завантаженні (якщо він вже йшов)
+  useEffect(() => {
+    if (!workoutId) return
+    const restEndStr = localStorage.getItem(`zalai_rest_end_${workoutId}`)
+    if (restEndStr) {
+      const remaining = Math.floor((parseInt(restEndStr, 10) - Date.now()) / 1000)
+      if (remaining > 0) {
+        setRestTimer(remaining)
+        setIsResting(true)
+      } else {
+        localStorage.removeItem(`zalai_rest_end_${workoutId}`)
+      }
+    }
+  }, [workoutId])
 
   // Таймер відпочинку
   useEffect(() => {
     if (restTimer > 0) {
-      timerInterval.current = setInterval(() => setRestTimer(prev => prev - 1), 1000)
+      timerInterval.current = setInterval(() => {
+        setRestTimer(prev => {
+          if (prev <= 1) {
+            setIsResting(false)
+            clearInterval(timerInterval.current)
+            if (workoutId) localStorage.removeItem(`zalai_rest_end_${workoutId}`)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
     } else {
       setIsResting(false)
       clearInterval(timerInterval.current)
     }
     return () => clearInterval(timerInterval.current)
-  }, [restTimer])
+  }, [restTimer, workoutId])
 
   const startRest = () => {
-    if (!autoRestEnabled) return
+    if (!autoRestEnabled || !workoutId) return
+    const endMs = Date.now() + restDuration * 1000
+    localStorage.setItem(`zalai_rest_end_${workoutId}`, endMs.toString())
     setRestTimer(restDuration)
     setIsResting(true)
   }
@@ -137,25 +205,66 @@ export default function WorkoutPage() {
       const currentUser = session?.user
       setUser(currentUser)
 
-      // 2. Fetch workout
-      const { data: wData } = await supabase.from('workouts').select('*').eq('id', workoutId).single()
-      setWorkout(wData)
+      // 2. Check cache first for instant load!
+      let weData = []
+      let exerciseIds = []
+      
+      if (activeWorkoutsCache && activeWorkoutsCache[workoutId]) {
+        const cached = activeWorkoutsCache[workoutId]
+        setWorkout(cached.workout)
+        setExercises(cached.exercises || [])
+        setSets(cached.sets || {})
+        exerciseIds = weData?.map(e => e.exercise_id) || []
+        setLoading(false) // Миттєве відображення з кешу
+      } else {
+        // Оптимізований запит 3-в-1 (Тренування + Вправи + Підходи)
+        const { data: wData, error } = await supabase
+          .from('workouts')
+          .select(`
+            *, 
+            workout_exercises(*, exercises(name, type), sets(*))
+          `)
+          .eq('id', workoutId)
+          .single()
+        
+        if (wData) {
+          // Розбираємо структуру назад у стан
+          const { workout_exercises, ...workoutInfo } = wData
+          setWorkout(workoutInfo)
+          
+          if (workout_exercises && workout_exercises.length > 0) {
+            // Сортуємо вправи за order
+            workout_exercises.sort((a,b) => a.order - b.order)
+            
+            // Виймаємо sets і видаляємо їх з workout_exercises
+            const setsObj = {}
+            const preparedExercises = workout_exercises.map(we => {
+              const { sets, ...weInfo } = we
+              if (sets && sets.length > 0) {
+                sets.sort((a,b) => a.order - b.order).forEach(s => { setsObj[s.id] = s })
+              }
+              return weInfo
+            })
 
-      // 3. Fetch workout exercises
-      const { data: weData } = await supabase.from('workout_exercises').select('*, exercises(name, type)').eq('workout_id', workoutId).order('order', { ascending: true })
-      setExercises(weData || [])
+            setExercises(preparedExercises)
+            setSets(setsObj)
+            weData = preparedExercises
+            exerciseIds = preparedExercises.map(e => e.exercise_id)
 
-      const exerciseIds = weData?.map(e => e.exercise_id) || []
-
-      // 4. Fetch sets
-      if (weData && weData.length > 0) {
-        const { data: sData } = await supabase.from('sets').select('*').in('workout_exercise_id', weData.map(e => e.id)).order('order', { ascending: true })
-        const setsObj = {}
-        sData?.forEach(s => { setsObj[s.id] = s })
-        setSets(setsObj)
+            // Зберігаємо в кеш для наступних повернень (якщо юзер вийде і зайде знов)
+            setActiveWorkoutsCache(prev => ({
+              ...prev, 
+              [workoutId]: { workout: workoutInfo, exercises: preparedExercises, sets: setsObj }
+            }))
+          } else {
+             setExercises([])
+             setSets({})
+          }
+        }
+        setLoading(false) // Відображаємо UI одразу після завантаження основних даних
       }
 
-      // 5. Fetch previous stats for these exercises
+      // 3. Fetch previous stats for these exercises в фоні
       if (currentUser && exerciseIds.length > 0) {
         try {
           // Шукаємо всі попередні завершені тренування користувача
@@ -234,8 +343,6 @@ export default function WorkoutPage() {
           }
         } catch (e) { console.error('Error fetching prev stats:', e) }
       }
-
-      setLoading(false)
     }
     fetchWorkoutData()
   }, [workoutId])
@@ -308,23 +415,59 @@ export default function WorkoutPage() {
     }
   }
 
-  const handleAddNewExercise = async (selectedEx) => {
+  const handleAddNewExercise = async (dbEx) => {
     setIsSavingNewExercise(true)
-    const currentOrder = exercises.length > 0 ? Math.max(...exercises.map(e => e.order)) + 1 : 0
-    const { data: newWe } = await supabase.from('workout_exercises')
-      .insert({ workout_id: workoutId, exercise_id: selectedEx.id, order: currentOrder })
-      .select('*, exercises(*)').single()
-    if (newWe) {
-      setExercises(prev => [...prev, newWe])
-      const { data: newSet } = await supabase.from('sets')
-        .insert({ workout_exercise_id: newWe.id, order: 1, weight: 0, reps: 0, time_seconds: 0, is_completed: false })
-        .select().single()
-      if (newSet) setSets(prev => ({ ...prev, [newSet.id]: newSet }))
-    }
-    setIsSavingNewExercise(false)
     setIsAddingExercise(false)
+    try {
+      // 1. Створюємо запис у workout_exercises
+      const newOrder = exercises.length + 1
+      const { data: weData, error: weError } = await supabase.from('workout_exercises')
+        .insert([{ workout_id: workoutId, exercise_id: dbEx.id, order: newOrder }])
+        .select('*, exercises(name, type)').single()
+
+      if (weError) throw weError
+
+      // 2. Додаємо порожній підхід
+      const { data: setData, error: setError } = await supabase.from('sets')
+        .insert([{ workout_exercise_id: weData.id, order: 1, is_completed: false }])
+        .select().single()
+
+      if (setError) throw setError
+
+      setExercises(prev => [...prev, weData])
+      setSets(prev => ({ ...prev, [setData.id]: setData }))
+    } catch (e) {
+      console.error(e)
+      alert("Не вдалося додати вправу")
+    } finally {
+      setIsSavingNewExercise(false)
+    }
     setSelectorSearch('')
     setSelectorCategory('Усі')
+  }
+
+  const handleCreateCustomExercise = async () => {
+    if (!selectorSearch.trim()) return
+    setIsCreatingCustom(true)
+    const { data, error } = await supabase.from('exercises')
+      .insert([{ name: selectorSearch.trim(), type: 'weight_reps', muscle: selectorCategory === 'Усі' ? 'Інше' : selectorCategory, user_id: user?.id || null, created_by: user?.id || null }])
+      .select().single()
+    if (data) {
+      setDbExercises(prev => [...prev, data])
+      handleAddNewExercise(data)
+    }
+    else { console.error('Помилка:', error); alert('Не вдалося створити вправу') }
+    setIsCreatingCustom(false)
+  }
+
+  const handleDeleteCustomExercise = async (id) => {
+    const { error } = await supabase.from('exercises').delete().eq('id', id)
+    if (error) {
+      console.error('Помилка видалення:', error)
+      alert('Не вдалося видалити вправу. Можливо, вона вже використовується у ваших тренуваннях.')
+    } else {
+      setDbExercises(prev => prev.filter(ex => ex.id !== id))
+    }
   }
 
   const handleFinishWorkout = async () => {
@@ -390,6 +533,40 @@ export default function WorkoutPage() {
     })
     setNewPRs(prList)
     await supabase.from('workouts').update({ status: 'completed' }).eq('id', workoutId)
+    
+    // Очищаємо localStorage при завершенні
+    if (workoutId) {
+      localStorage.removeItem(`zalai_session_start_${workoutId}`)
+      localStorage.removeItem(`zalai_rest_end_${workoutId}`)
+    }
+    
+    // Оновлюємо глобальний кеш так що дашборд відразу відображає прогрес
+    const todayStr = new Date().toISOString().split('T')[0]
+    
+    if (setActivityDays) {
+      setActivityDays(prev => {
+        const next = new Set(prev)
+        next.add(todayStr)
+        return next
+      })
+    }
+    
+    if (setRecentWorkouts) {
+      setRecentWorkouts(prev => [
+        { id: workoutId, name: workout?.name || 'Тренування', date: new Date().toISOString() },
+        ...prev
+      ].slice(0, 3)) // Тримаємо останні 3
+    }
+    
+    if (setStats) {
+      setStats(prev => ({
+        ...prev,
+        total: (prev?.total || 0) + 1,
+        thisMonth: (prev?.thisMonth || 0) + 1,
+        totalSets: (prev?.totalSets || 0) + completed.length
+      }))
+    }
+    
     setShowFinishScreen(true)
   }
 
@@ -613,12 +790,15 @@ export default function WorkoutPage() {
                       <div className="flex items-start justify-between mb-4 gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 group/title">
-                            <h2 className="text-sm font-bold text-white/80 uppercase tracking-wide leading-snug truncate">{ex.exercises.name}</h2>
+                            <h2 className="text-sm font-bold text-white/80 uppercase tracking-wide leading-snug">{ex.exercises.name}</h2>
                             <Link
                               href={`/exercises/${ex.exercise_id}`}
-                              className="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover/title:opacity-100 transition-opacity hover:bg-[#A3E635]/20 hover:text-[#A3E635]"
+                              className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white/40 hover:text-[#22D3EE] hover:border-[#22D3EE]/30 transition-all shrink-0 ml-2"
+                              title="Дізнатися більше"
                             >
-                              <span className="text-[10px] font-serif italic">i</span>
+                              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                                  <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
+                              </svg>
                             </Link>
                           </div>
 
@@ -649,12 +829,14 @@ export default function WorkoutPage() {
                       </div>
 
                       {/* Заголовки колонок */}
-                      <div className={`grid gap-2 px-1 mb-2 ${isTimeType ? 'grid-cols-[36px_1fr_40px_32px]' : 'grid-cols-[36px_1fr_1fr_40px_32px]'}`}>
-                        <div className="text-center text-[9px] font-bold text-white/35 uppercase tracking-wider">№</div>
+                      <div className={`grid gap-2 px-1 mb-2 ${isTimeType ? 'grid-cols-[36px_1fr_1fr_40px_32px]' : 'grid-cols-[36px_1fr_1fr_40px_32px]'}`}>
+                        <div className="text-center text-[9px] font-bold text-white/35 uppercase tracking-wider">#</div>
                         <div className="text-center text-[9px] font-bold text-white/35 uppercase tracking-wider">
-                          {isTimeType ? 'Секунди' : 'Кг'}
+                          {isTimeType ? 'Хв' : 'Кг'}
                         </div>
-                        {!isTimeType && <div className="text-center text-[9px] font-bold text-white/35 uppercase tracking-wider">Повтори</div>}
+                        <div className="text-center text-[9px] font-bold text-white/35 uppercase tracking-wider">
+                          {isTimeType ? 'Сек' : 'Повт'}
+                        </div>
                         <div />
                         <div />
                       </div>
@@ -666,35 +848,60 @@ export default function WorkoutPage() {
                           return (
                             <div
                               key={set.id}
-                              className={`grid gap-2 items-center rounded-xl px-1 py-1 transition-all duration-200 ${isTimeType ? 'grid-cols-[36px_1fr_40px_32px]' : 'grid-cols-[36px_1fr_1fr_40px_32px]'} ${isDone ? 'bg-[#A3E635]/5' : 'hover:bg-white/[0.02]'} group/set`}
+                              className={`grid gap-2 items-center rounded-xl px-1 py-1 transition-all duration-200 grid-cols-[36px_1fr_1fr_40px_32px] ${isDone ? 'bg-[#A3E635]/5' : 'hover:bg-white/[0.02]'} group/set`}
                             >
                               {/* Номер підходу */}
                               <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold font-mono transition-colors ${isDone ? 'bg-[#A3E635]/15 text-[#A3E635]' : 'bg-white/[0.04] text-white/30'}`}>
-                                {String(set.order).padStart(2, '0')}
+                                {set.order}
                               </div>
 
                               {isTimeType ? (
-                                <div className={`rounded-xl border transition-all duration-200 ${isDone ? 'border-[#A3E635]/10' : 'border-white/[0.08] focus-within:border-[#A3E635]/40'}`}>
-                                  <input
-                                    type="number" inputMode="numeric" value={set.time_seconds || ''} placeholder="—"
-                                    onChange={(e) => handleSetChange(set.id, 'time_seconds', e.target.value)}
-                                    className={`w-full py-2.5 bg-transparent text-center text-lg font-mono font-bold outline-none placeholder:text-white/15 transition-colors ${isDone ? 'text-[#A3E635]/50' : 'text-white'}`}
-                                  />
-                                </div>
+                                <>
+                                  {/* Хвилини */}
+                                  <div className={`relative rounded-xl border transition-all duration-200 ${isDone ? 'border-[#A3E635]/10 bg-[#A3E635]/5' : 'border-white/[0.08] bg-white/[0.02] focus-within:border-[#22D3EE]/50 focus-within:bg-[#22D3EE]/5'}`}>
+                                    <input
+                                      type="number" inputMode="numeric"
+                                      value={set.time_seconds ? Math.floor(set.time_seconds / 60) : ''}
+                                      placeholder="—"
+                                      onChange={(e) => {
+                                        const mins = Number(e.target.value) || 0
+                                        const secs = set.time_seconds ? set.time_seconds % 60 : 0
+                                        handleSetChange(set.id, 'time_seconds', mins * 60 + secs)
+                                      }}
+                                      className={`w-full py-3.5 bg-transparent text-center text-xl font-mono font-bold outline-none placeholder:text-white/15 transition-colors ${isDone ? 'text-[#A3E635]/50' : 'text-white'}`}
+                                    />
+                                  </div>
+                                  {/* Секунди */}
+                                  <div className={`relative rounded-xl border transition-all duration-200 ${isDone ? 'border-[#A3E635]/10 bg-[#A3E635]/5' : 'border-white/[0.08] bg-white/[0.02] focus-within:border-[#22D3EE]/50 focus-within:bg-[#22D3EE]/5'}`}>
+                                    <input
+                                      type="number" inputMode="numeric"
+                                      value={set.time_seconds ? set.time_seconds % 60 : ''}
+                                      placeholder="—"
+                                      onChange={(e) => {
+                                        const secs = Math.min(59, Number(e.target.value) || 0)
+                                        const mins = set.time_seconds ? Math.floor(set.time_seconds / 60) : 0
+                                        handleSetChange(set.id, 'time_seconds', mins * 60 + secs)
+                                      }}
+                                      className={`w-full py-3.5 bg-transparent text-center text-xl font-mono font-bold outline-none placeholder:text-white/15 transition-colors ${isDone ? 'text-[#A3E635]/50' : 'text-white'}`}
+                                    />
+                                  </div>
+                                </>
                               ) : (
                                 <>
-                                  <div className={`rounded-xl border transition-all duration-200 ${isDone ? 'border-[#A3E635]/10 bg-[#A3E635]/5' : 'border-white/[0.08] bg-white/[0.02] focus-within:border-[#A3E635]/40 focus-within:bg-[#A3E635]/5'}`}>
+                                  {/* Вага */}
+                                  <div className={`relative rounded-xl border transition-all duration-200 ${isDone ? 'border-[#A3E635]/10 bg-[#A3E635]/5' : 'border-white/[0.08] bg-white/[0.02] focus-within:border-[#A3E635]/40 focus-within:bg-[#A3E635]/5'}`}>
                                     <input
                                       type="number" inputMode="decimal" value={set.weight || ''} placeholder="—"
                                       onChange={(e) => handleSetChange(set.id, 'weight', e.target.value)}
-                                      className={`w-full py-2.5 bg-transparent text-center text-lg font-mono font-bold outline-none placeholder:text-white/15 transition-colors ${isDone ? 'text-[#A3E635]/50' : 'text-white'}`}
+                                      className={`w-full py-3.5 bg-transparent text-center text-xl font-mono font-bold outline-none placeholder:text-white/15 transition-colors ${isDone ? 'text-[#A3E635]/50' : 'text-white'}`}
                                     />
                                   </div>
-                                  <div className={`rounded-xl border transition-all duration-200 ${isDone ? 'border-[#A3E635]/10 bg-[#A3E635]/5' : 'border-white/[0.08] bg-white/[0.02] focus-within:border-[#A3E635]/40 focus-within:bg-[#A3E635]/5'}`}>
+                                  {/* Повтори */}
+                                  <div className={`relative rounded-xl border transition-all duration-200 ${isDone ? 'border-[#A3E635]/10 bg-[#A3E635]/5' : 'border-white/[0.08] bg-white/[0.02] focus-within:border-[#A3E635]/40 focus-within:bg-[#A3E635]/5'}`}>
                                     <input
                                       type="number" inputMode="numeric" value={set.reps || ''} placeholder="—"
                                       onChange={(e) => handleSetChange(set.id, 'reps', e.target.value)}
-                                      className={`w-full py-2.5 bg-transparent text-center text-lg font-mono font-bold outline-none placeholder:text-white/15 transition-colors ${isDone ? 'text-[#A3E635]/50' : 'text-white'}`}
+                                      className={`w-full py-3.5 bg-transparent text-center text-xl font-mono font-bold outline-none placeholder:text-white/15 transition-colors ${isDone ? 'text-[#A3E635]/50' : 'text-white'}`}
                                     />
                                   </div>
                                 </>
@@ -785,7 +992,12 @@ export default function WorkoutPage() {
                 {REST_OPTIONS.map(opt => (
                   <button
                     key={opt.value}
-                    onClick={() => { setRestDuration(opt.value); setRestTimer(opt.value); setShowRestPicker(false) }}
+                    onClick={() => { 
+                      setRestDuration(opt.value); 
+                      setRestTimer(opt.value); 
+                      setShowRestPicker(false);
+                      if (workoutId) localStorage.setItem(`zalai_rest_end_${workoutId}`, (Date.now() + opt.value * 1000).toString())
+                    }}
                     className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${restDuration === opt.value ? 'bg-[#A3E635] text-[#080b10]' : 'bg-[#0d1117] border border-white/10 text-white/50 hover:border-white/30'}`}
                   >
                     {opt.label}
@@ -810,7 +1022,12 @@ export default function WorkoutPage() {
 
             {/* Пропустити */}
             <button
-              onClick={() => { setRestTimer(0); setIsResting(false); setShowRestPicker(false) }}
+              onClick={() => { 
+                setRestTimer(0); 
+                setIsResting(false); 
+                setShowRestPicker(false);
+                if (workoutId) localStorage.removeItem(`zalai_rest_end_${workoutId}`) 
+              }}
               className="text-[9px] font-bold text-white/30 hover:text-white uppercase tracking-wider transition-colors bg-[#080b10] px-4 py-1.5 rounded-full border border-white/[0.05]"
             >
               Пропустити
@@ -833,6 +1050,10 @@ export default function WorkoutPage() {
           filteredDbExercises={filteredForSelector}
           isLoadingExercises={isLoadingDb}
           isExactMatch={false}
+          handleCreateCustomExercise={handleCreateCustomExercise}
+          isCreatingCustom={isCreatingCustom}
+          user={user}
+          handleDeleteCustomExercise={handleDeleteCustomExercise}
         />
       )}
     </main>

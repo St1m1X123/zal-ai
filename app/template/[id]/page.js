@@ -5,39 +5,120 @@ import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import ExerciseSelector from '../../../components/ExerciseSelector'
 import ExerciseBlock from '../../../components/ExerciseBlock'
+import { useApp } from '../../../context/AppContext'
 
 export default function EditTemplatePage() {
     const router = useRouter()
+    const { user, storedExercises, setStoredExercises, templates, setTemplates, setPrograms } = useApp()
     const params = useParams()
     const templateId = params?.id
 
-    const [workoutName, setWorkoutName] = useState('')
+    const [workoutName, setWorkoutName] = useState(() => {
+        if (typeof window !== 'undefined' && templateId) {
+            const saved = sessionStorage.getItem(`zalai_edit_template_name_${templateId}`)
+            return saved || ''
+        }
+        return ''
+    })
     const [isSaving, setIsSaving] = useState(false)
     const [isLoadingTemplate, setIsLoadingTemplate] = useState(true)
 
     const [dbExercises, setDbExercises] = useState([])
     const [isLoadingDb, setIsLoadingDb] = useState(true)
 
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [activeExerciseId, setActiveExerciseId] = useState(null)
-    const [searchQuery, setSearchQuery] = useState('')
-    const [activeCategory, setActiveCategory] = useState('Усі')
+    const [isModalOpen, setIsModalOpen] = useState(() => {
+        if (typeof window !== 'undefined' && templateId) {
+            return sessionStorage.getItem(`zalai_edit_template_modal_open_${templateId}`) === 'true'
+        }
+        return false
+    })
+    const [activeExerciseId, setActiveExerciseId] = useState(() => {
+        if (typeof window !== 'undefined' && templateId) {
+            const saved = sessionStorage.getItem(`zalai_edit_template_active_id_${templateId}`)
+            return saved ? Number(saved) : null
+        }
+        return null
+    })
+    const [searchQuery, setSearchQuery] = useState(() => {
+        if (typeof window !== 'undefined' && templateId) {
+            return sessionStorage.getItem(`zalai_edit_template_search_${templateId}`) || ''
+        }
+        return ''
+    })
+    const [activeCategory, setActiveCategory] = useState(() => {
+        if (typeof window !== 'undefined' && templateId) {
+            return sessionStorage.getItem(`zalai_edit_template_category_${templateId}`) || 'Усі'
+        }
+        return 'Усі'
+    })
     const [isCreatingCustom, setIsCreatingCustom] = useState(false)
 
-    const [exercises, setExercises] = useState([])
+    const [exercises, setExercises] = useState(() => {
+        if (typeof window !== 'undefined' && templateId) {
+            const saved = sessionStorage.getItem(`zalai_edit_template_exercises_${templateId}`)
+            if (saved) {
+                try {
+                    return JSON.parse(saved)
+                } catch(e) { console.error('Error parsing saved edit template exercises') }
+            }
+        }
+        return []
+    })
+
+    // --- Збереження стану в sessionStorage ---
+    useEffect(() => {
+        if (templateId && workoutName !== '') {
+            sessionStorage.setItem(`zalai_edit_template_name_${templateId}`, workoutName)
+        }
+    }, [workoutName, templateId])
+
+    useEffect(() => {
+        if (templateId && exercises.length > 0) {
+            sessionStorage.setItem(`zalai_edit_template_exercises_${templateId}`, JSON.stringify(exercises))
+        }
+    }, [exercises, templateId])
+
+    useEffect(() => {
+        if (templateId) {
+            sessionStorage.setItem(`zalai_edit_template_modal_open_${templateId}`, isModalOpen)
+            if (activeExerciseId) sessionStorage.setItem(`zalai_edit_template_active_id_${templateId}`, activeExerciseId)
+            else sessionStorage.removeItem(`zalai_edit_template_active_id_${templateId}`)
+            sessionStorage.setItem(`zalai_edit_template_search_${templateId}`, searchQuery)
+            sessionStorage.setItem(`zalai_edit_template_category_${templateId}`, activeCategory)
+        }
+    }, [isModalOpen, activeExerciseId, searchQuery, activeCategory, templateId])
+
+    const clearSessionStorage = () => {
+        if (!templateId) return
+        sessionStorage.removeItem(`zalai_edit_template_name_${templateId}`)
+        sessionStorage.removeItem(`zalai_edit_template_exercises_${templateId}`)
+        sessionStorage.removeItem(`zalai_edit_template_modal_open_${templateId}`)
+        sessionStorage.removeItem(`zalai_edit_template_active_id_${templateId}`)
+        sessionStorage.removeItem(`zalai_edit_template_search_${templateId}`)
+        sessionStorage.removeItem(`zalai_edit_template_category_${templateId}`)
+    }
 
     const categories = ['Усі', 'Груди', 'Спина', 'Ноги', 'Плечі', 'Руки', 'Прес', 'Кардіо', 'Розтяжка', 'Інше']
 
     // Load DB exercises
     useEffect(() => {
-        const fetchExercises = async () => {
-            setIsLoadingDb(true)
-            const { data, error } = await supabase.from('exercises').select('*').order('name', { ascending: true })
-            if (data) setDbExercises(data)
+        if (storedExercises?.length > 0) {
+            setDbExercises(storedExercises)
             setIsLoadingDb(false)
+        } else {
+            // Фолбек
+            const fetchExercises = async () => {
+                setIsLoadingDb(true)
+                const { data, error } = await supabase.from('exercises').select('*').order('name', { ascending: true })
+                if (data) {
+                    setDbExercises(data)
+                    setStoredExercises(data)
+                }
+                setIsLoadingDb(false)
+            }
+            fetchExercises()
         }
-        fetchExercises()
-    }, [])
+    }, [storedExercises, setStoredExercises])
 
     // Load existing template data
     useEffect(() => {
@@ -46,6 +127,48 @@ export default function EditTemplatePage() {
         const loadTemplate = async () => {
             setIsLoadingTemplate(true)
 
+            // Перевіряємо, чи є відновлений стан (ми його вже завантажили в useState, просто перевіряємо, чи треба скіпати DB)
+            if (typeof window !== 'undefined' && sessionStorage.getItem(`zalai_edit_template_exercises_${templateId}`)) {
+                setIsLoadingTemplate(false)
+                return
+            }
+
+            // Спочатку перевіряємо, чи є цей шаблон вже в кеші AppContext
+            const cachedTemplate = templates?.find(t => t.id === templateId)
+            
+            if (cachedTemplate && cachedTemplate.workout_exercises) {
+                setWorkoutName(cachedTemplate.name)
+                
+                if (cachedTemplate.workout_exercises.length > 0) {
+                    const loadedExercises = cachedTemplate.workout_exercises.sort((a,b) => a.order - b.order).map(we => {
+                        const setsForWe = we.sets?.sort((a,b) => a.order - b.order) || []
+                        return {
+                            id: we.id,
+                            exercise_id: we.exercise_id,
+                            name: we.exercises?.name,
+                            type: we.exercises?.type,
+                            superset_id: we.superset_id,
+                            note: we.note || '',
+                            sets: setsForWe.length > 0 ? setsForWe.map(s => ({
+                                id: s.id,
+                                weight: s.weight || '',
+                                reps: s.reps || '',
+                                time_minutes: s.time_seconds ? Math.floor(s.time_seconds / 60) : '',
+                                time_seconds: s.time_seconds ? s.time_seconds % 60 : '',
+                                set_type: 'normal',
+                                note: s.note || ''
+                            })) : [{ id: Date.now() + Math.random(), weight: '', reps: '', time_minutes: '', time_seconds: '', set_type: 'normal', note: '' }]
+                        }
+                    })
+                    setExercises(loadedExercises)
+                } else {
+                    setExercises([{ id: Date.now(), exercise_id: null, name: '', note: '', type: 'weight_reps', superset_id: null, sets: [{ id: Date.now() + 1, weight: '', reps: '', time_minutes: '', time_seconds: '', set_type: 'normal', note: '' }] }])
+                }
+                setIsLoadingTemplate(false)
+                return
+            }
+
+            // Фолбек: Завантаження з бази, якщо немає в кеші (прямий лінк, перезавантаження сторінки)
             // 1. Fetch workout name
             const { data: wData } = await supabase.from('workouts').select('*').eq('id', templateId).single()
             if (wData) setWorkoutName(wData.name)
@@ -88,7 +211,7 @@ export default function EditTemplatePage() {
         }
 
         loadTemplate()
-    }, [templateId])
+    }, [templateId, templates])
 
     const groupedBlocks = useCallback(() => {
         const blocks = []
@@ -107,7 +230,10 @@ export default function EditTemplatePage() {
         return blocks
     }, [exercises])
 
-    const handleOpenModal = (id) => { setActiveExerciseId(id); setSearchQuery(''); setActiveCategory('Усі'); setIsModalOpen(true) }
+    const handleOpenModal = (id) => { 
+        setActiveExerciseId(id)
+        setIsModalOpen(true) 
+    }
     const handleSelectExercise = (dbEx) => {
         setExercises(exercises.map(ex => ex.id === activeExerciseId ? { ...ex, exercise_id: dbEx.id, name: dbEx.name, type: dbEx.type } : ex))
         setIsModalOpen(false)
@@ -117,11 +243,21 @@ export default function EditTemplatePage() {
         setIsCreatingCustom(true)
         const { data: { user } } = await supabase.auth.getUser()
         const { data, error } = await supabase.from('exercises')
-            .insert([{ name: searchQuery.trim(), type: 'weight_reps', muscle: activeCategory === 'Усі' ? 'Інше' : activeCategory, user_id: user?.id || null }])
+            .insert([{ name: searchQuery.trim(), type: 'weight_reps', muscle: activeCategory === 'Усі' ? 'Інше' : activeCategory, user_id: user?.id || null, created_by: user?.id || null }])
             .select().single()
         if (data) { setDbExercises(prev => [...prev, data]); handleSelectExercise(data) }
         else { console.error('Помилка:', error); alert('Не вдалося створити вправу.') }
         setIsCreatingCustom(false)
+    }
+
+    const handleDeleteCustomExercise = async (id) => {
+        const { error } = await supabase.from('exercises').delete().eq('id', id)
+        if (error) {
+            console.error('Помилка видалення:', error)
+            alert('Не вдалося видалити вправу. Можливо, вона вже використовується у ваших тренуваннях.')
+        } else {
+            setDbExercises(prev => prev.filter(ex => ex.id !== id))
+        }
     }
 
     const handleAddExercise = () => {
@@ -184,6 +320,42 @@ export default function EditTemplatePage() {
                     if (setsError) throw setsError
                 }
             }
+            
+            // Після успішного оновлення в базі, оновлюємо глобальний кеш
+            if (setTemplates || setPrograms) {
+                const { data: updatedWorkout } = await supabase
+                    .from('workouts')
+                    .select('*, workout_exercises(id, exercises(name))')
+                    .eq('id', templateId)
+                    .single()
+                
+                if (updatedWorkout) {
+                    if (updatedWorkout.program_id && setPrograms) {
+                        setPrograms(prev => prev.map(p => {
+                            if (p.id === updatedWorkout.program_id) {
+                                return {
+                                    ...p,
+                                    workouts: p.workouts?.map(w => w.id === templateId ? updatedWorkout : w)
+                                }
+                            }
+                            return p
+                        }))
+                    } else if (setTemplates) {
+                        setTemplates(prev => {
+                            const idx = prev.findIndex(t => t.id === templateId)
+                            if (idx > -1) {
+                                const newArr = [...prev]
+                                newArr[idx] = updatedWorkout
+                                return newArr
+                            }
+                            return [updatedWorkout, ...prev]
+                        })
+                    }
+                }
+            }
+            
+            clearSessionStorage()
+
             if (shouldRedirect) router.push('/programs')
             return true
         } catch (error) {
@@ -248,7 +420,7 @@ export default function EditTemplatePage() {
                 </div>
             </header>
 
-            <div className="p-4 flex flex-col max-w-md mx-auto w-full gap-4 mt-2">
+            <div className="p-4 pb-28 flex flex-col max-w-md mx-auto w-full gap-4 mt-2">
                 {groupedBlocks().map((block, blockIndex) => (
                     <ExerciseBlock
                         key={`block-${blockIndex}`}
@@ -327,6 +499,11 @@ export default function EditTemplatePage() {
                 isExactMatch={isExactMatch}
                 handleCreateCustomExercise={handleCreateCustomExercise}
                 isCreatingCustom={isCreatingCustom}
+                user={user}
+                handleDeleteCustomExercise={handleDeleteCustomExercise}
+                onInfoClick={(exId) => {
+                    router.push(`/exercises/${exId}`)
+                }}
             />
         </main>
     )
