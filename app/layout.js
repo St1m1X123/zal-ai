@@ -18,6 +18,10 @@ export const metadata = {
   title: "ZalAI | Трекер тренувань",
   description: "Розумний трекер тренувань з концепцією Smart Logging",
   manifest: "/manifest.json",
+  icons: {
+    icon: '/icon-192.png',
+    apple: '/icon-192.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
